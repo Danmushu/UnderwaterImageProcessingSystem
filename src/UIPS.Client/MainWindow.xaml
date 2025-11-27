@@ -3,19 +3,66 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:UIPS.Client"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Grid Background="{StaticResource BackgroundBrush}">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="UIPS System" Foreground="{StaticResource PrimaryTextBrush}" FontSize="30" Margin="0,0,0,20"/>
+        Title="UIPS - 水下图像处理系统" Height="720" Width="1280"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}"
+        Foreground="{StaticResource PrimaryTextBrush}">
 
-                <Button Content="LOGIN" 
-                Background="{StaticResource PrimaryBrush}" 
-                BorderBrush="{StaticResource PrimaryBrush}"
-                Height="50" Width="200"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}">
+            <StackPanel Margin="10">
+                <StackPanel Orientation="Horizontal" Margin="10,20,10,40">
+                    <materialDesign:PackIcon Kind="Water" Width="40" Height="40" Foreground="{StaticResource SecondaryBrush}"/>
+                    <TextBlock Text="UIPS" FontSize="30" FontWeight="Bold" Margin="15,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}"
+                             Margin="0,5" Padding="10" IsChecked="True"
+                             Foreground="{StaticResource PrimaryTextBrush}"
+                             BorderBrush="{StaticResource PrimaryBrush}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ViewDashboard" Margin="0,0,10,0"/>
+                        <TextBlock Text="仪表盘 (Dashboard)"/>
+                    </StackPanel>
+                </RadioButton>
+
+                <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}"
+                             Margin="0,5" Padding="10"
+                             Foreground="{StaticResource PrimaryTextBrush}"
+                             BorderBrush="{StaticResource PrimaryBrush}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ImageMultiple" Margin="0,0,10,0"/>
+                        <TextBlock Text="图库 (Gallery)"/>
+                    </StackPanel>
+                </RadioButton>
+
             </StackPanel>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <materialDesign:PackIcon Kind="AccountCircle" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Text="欢迎回来, 管理员" VerticalAlignment="Center" FontSize="16"/>
+            </StackPanel>
+
+            <Border Grid.Row="1" Margin="0,20,0,0" 
+                    BorderBrush="{StaticResource SurfaceBrush}" BorderThickness="2" CornerRadius="10">
+                <TextBlock Text="这里将展示 Dashboard 内容" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Opacity="0.5" FontSize="20"/>
+            </Border>
         </Grid>
     </Grid>
 </Window>
