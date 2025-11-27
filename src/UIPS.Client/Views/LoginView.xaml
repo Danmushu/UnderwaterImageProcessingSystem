@@ -1,0 +1,52 @@
+﻿<Window x:Class="UIPS.Client.Views.LoginView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="UIPS Login" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}"
+        ResizeMode="NoResize" WindowStyle="None">
+
+    <Grid>
+        <materialDesign:Card Width="350" Padding="20" UniformCornerRadius="10" Background="{StaticResource SurfaceBrush}">
+            <StackPanel>
+                <TextBlock Text="UIPS LOGIN" 
+                           Foreground="{StaticResource PrimaryTextBrush}"
+                           FontSize="24" FontWeight="Bold" 
+                           HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                <TextBox Text="{Binding UserName}"
+                         materialDesign:HintAssist.Hint="Username"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         Foreground="{StaticResource PrimaryTextBrush}"
+                         Margin="0,10"/>
+
+                <TextBox Text="{Binding Password}"
+                         materialDesign:HintAssist.Hint="Password"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         Foreground="{StaticResource PrimaryTextBrush}"
+                         Margin="0,10,0,20"/>
+
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="{StaticResource SecondaryBrush}"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                <Button Command="{Binding LoginCommand}"
+                        Content="LOGIN"
+                        Height="40"
+                        materialDesign:ButtonAssist.CornerRadius="5"
+                        Background="{StaticResource PrimaryBrush}"
+                        BorderBrush="{StaticResource PrimaryBrush}"/>
+
+                <Button Content="EXIT" Click="Exit_Click"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Foreground="{StaticResource ErrorBrush}"
+                        Margin="0,10,0,0"/>
+            </StackPanel>
+        </materialDesign:Card>
+    </Grid>
+</Window>
