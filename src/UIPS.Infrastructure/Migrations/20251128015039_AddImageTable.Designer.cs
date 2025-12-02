@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UIPS.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using UIPS.Infrastructure.Data;
 namespace UIPS.Infrastructure.Migrations
 {
     [DbContext(typeof(UipsDbContext))]
-    partial class UipsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251128015039_AddImageTable")]
+    partial class AddImageTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.22");
@@ -45,26 +48,6 @@ namespace UIPS.Infrastructure.Migrations
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Images");
-                });
-
-            modelBuilder.Entity("UIPS.Domain.Entities.Selection", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ImageId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("SelectedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Selections");
                 });
 
             modelBuilder.Entity("UIPS.Domain.Entities.User", b =>

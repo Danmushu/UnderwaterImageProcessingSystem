@@ -14,7 +14,7 @@ namespace UIPS.API.Controllers;
 [ApiController]
 public class AuthController(UipsDbContext context, IConfiguration configuration) : ControllerBase
 {
-    // === 注册接口 ===
+    // 注册接口 
     [HttpPost("register")]
     public async Task<IActionResult> Register(LoginRequestDto request)
     {
@@ -64,7 +64,8 @@ public class AuthController(UipsDbContext context, IConfiguration configuration)
             RefreshToken = "待实现...", // TODO 实现刷新令牌
             UserId = user.Id,
             UserName = user.UserName,
-            ExpiresIn = 120 * 60 // 秒
+            ExpiresIn = 120 * 60, // 秒
+            Role = user.Role
         });
     }
 
@@ -72,14 +73,15 @@ public class AuthController(UipsDbContext context, IConfiguration configuration)
     private string GenerateJwtToken(User user)
     {
         var jwtSettings = configuration.GetSection("Jwt");
-        var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
+        var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
 
         // 定义令牌里的声明 - 相当于身份证上的信息
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // 用户 ID
             new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName), // 用户名
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // 唯一标识
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // 唯一标识
+            new Claim(ClaimTypes.Role, user.Role) // 用户角色
         };
 
         // 签名证书

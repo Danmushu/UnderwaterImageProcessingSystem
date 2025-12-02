@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Windows;
 using UIPS.Client.Core.ViewModels;
 
 namespace UIPS.Client.Views
@@ -12,18 +13,19 @@ namespace UIPS.Client.Views
         {
             InitializeComponent();
 
-            // 绑定上下文到viewModel
-            var vm = new LoginViewModel();
+            // 从 App 服务的容器中获取 ViewModel
+            var serviceProvider = ((App)Application.Current).ServiceProvider;
+            var vm = serviceProvider.GetRequiredService<LoginViewModel>();
+
             DataContext = vm;
 
             // 订阅 ViewModel 的成功事件
             vm.OnLoginSuccess += () =>
             {
-                // 创建并显示主窗口
-                var mainWindow = new MainWindow();
+                // 确保使用 serviceProvider 来获取 MainWindow
+                var mainWindow = serviceProvider.GetRequiredService<MainWindow>(); // <-- 修复行
                 mainWindow.Show();
 
-                // 关闭当前的登录窗口
                 this.Close();
             };
         }

@@ -3,69 +3,168 @@ using CommunityToolkit.Mvvm.Input;
 using Refit;
 using UIPS.Client.Core.Services;
 using UIPS.Shared.DTOs;
+using System.Windows; // 用于 Visibility 转换逻辑
 
 namespace UIPS.Client.Core.ViewModels;
 
-// 继承 ObservableObject 以获得自动属性通知功能
 public partial class LoginViewModel : ObservableObject
 {
-    // 自动生成 UserName 属性和变更通知
-    [ObservableProperty]
-    private string userName;
+    // 依赖服务
+    private readonly IAuthApi _authApi;
+    private readonly UserSession _userSession;
 
-    // 自动生成 Password 属性
-    [ObservableProperty]
-    private string password;
+    // 构造函数
+    public LoginViewModel(IAuthApi authApi, UserSession userSession)
+    {
+        _authApi = authApi;
+        _userSession = userSession;
+    }
 
-    // 自动生成 IsLoading 属性，用于控制加载动画
+    // 基础属性
     [ObservableProperty]
-    private bool isLoading;
+    private string _userName = string.Empty;
 
-    // 自动生成 ErrorMessage 属性，用于显示错误
     [ObservableProperty]
-    private string errorMessage;
+    private string _password = string.Empty;
 
+    [ObservableProperty]
+    private bool _isLoading;
+
+    [ObservableProperty]
+    private string _errorMessage = string.Empty;
+
+    // 确认密码 仅注册模式使用
+    [ObservableProperty]
+    private string _confirmPassword = string.Empty;
+
+    // 当前是否为注册模式 默认 False = 登录
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ActionTitle))]
+    [NotifyPropertyChangedFor(nameof(ActionButtonText))]
+    [NotifyPropertyChangedFor(nameof(SwitchModePrompt))]
+    private bool _isRegisterMode = false;
+
+    // 动态属性
+    public string ActionTitle => IsRegisterMode ? "UIPS 注册" : "UIPS 登录";
+    public string ActionButtonText => IsRegisterMode ? "立即注册" : "登 录";
+    public string SwitchModePrompt => IsRegisterMode ? "已有账号?" : "没有账号?";
+
+    // 登录成功回调
     public Action? OnLoginSuccess { get; set; }
 
-    // 登录命令：自动处理异步和按钮禁用
+    // 切换模式命令 
     [RelayCommand]
-    private async Task LoginAsync()
+    private void SwitchMode()
     {
+        IsRegisterMode = !IsRegisterMode;
+        ErrorMessage = "";
+        // 切换模式时建议清空密码，避免混淆
+        Password = "";
+        ConfirmPassword = "";
+    }
+
+    // 主执行命令 入口路由
+    // View 层只需要绑定这个命令，内部会自动分发到具体的业务函数
+    [RelayCommand]
+    private async Task ExecuteAuthAsync()
+    {
+        ErrorMessage = "";
+
+        // 公共基础校验
+        if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Password))
+        {
+            ErrorMessage = "用户名或密码不能为空";
+            return;
+        }
+
+        IsLoading = true;
+
         try
         {
-            IsLoading = true;
-            ErrorMessage = "";
-
-            // 创建 API 客户端 (这里暂时硬编码地址，稍后统一配置)
-            var authApi = RestService.For<IAuthApi>("https://localhost:7149");
-            var request = new LoginRequestDto { UserName = UserName, Password = Password };
-            var response = await authApi.LoginAsync(request);
-
-            // 将 Token 存入会话单例
-            UserSession.Current.SetSession(response.AccessToken, response.UserName, response.UserId);
-
-            // 触发成功事件
-            ErrorMessage = "登录成功，正在跳转...";
-
-            // 延迟一小会儿让用户看到“登录成功”字样 (可选)
-            await Task.Delay(500);
-
-            // 通知UI层切换窗口
-            OnLoginSuccess?.Invoke();
-        }
-        catch (ApiException ex)
-        {
-            // 处理 401/400 等 API 错误
-            ErrorMessage = $"登录失败: {ex.StatusCode}";
+            // 根据模式分发到单一职责函数
+            if (IsRegisterMode)
+            {
+                await PerformRegisterAsync();
+            }
+            else
+            {
+                await PerformLoginAsync();
+            }
         }
         catch (Exception ex)
         {
-            // 处理网络错误
-            ErrorMessage = $"发生错误: {ex.Message}";
+            // 全局异常兜底
+            ErrorMessage = $"系统错误: {ex.Message}";
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    // 注册
+    private async Task PerformRegisterAsync()
+    {
+        // 注册特有的校验
+        if (Password != ConfirmPassword)
+        {
+            ErrorMessage = "两次输入的密码不一致";
+            return;
+        }
+
+        try
+        {
+            // 调用 API
+            await _authApi.RegisterAsync(new LoginRequestDto
+            {
+                UserName = UserName,
+                Password = Password
+            });
+
+            // 注册成功的后续处理
+            HandleRegisterSuccess();
+        }
+        catch (ApiException ex)
+        {
+            ErrorMessage = $"注册失败: {ex.Content ?? ex.ReasonPhrase}";
+        }
+    }
+
+    // 登录 
+    private async Task PerformLoginAsync()
+    {
+        try
+        {
+            // 调用 API
+            var request = new LoginRequestDto { UserName = UserName, Password = Password };
+            var response = await _authApi.LoginAsync(request);
+
+            // 处理 Session
+            _userSession.SetSession(response.AccessToken, response.UserName, response.UserId, response.Role);
+
+            // 登录成功的后续处理
+            await HandleLoginSuccessAsync();
+        }
+        catch (ApiException ex)
+        {
+            ErrorMessage = $"登录失败: {ex.StatusCode} (请检查用户名密码)";
+        }
+    }
+
+    // 处理注册成功状态
+    private void HandleRegisterSuccess()
+    {
+        IsRegisterMode = false; // 切回登录模式
+        ErrorMessage = "注册成功！请登录。";
+        Password = "";
+        ConfirmPassword = "";
+    }
+
+    // 处理登录成功状态
+    private async Task HandleLoginSuccessAsync()
+    {
+        ErrorMessage = "登录成功，正在跳转...";
+        await Task.Delay(500); // 给一点视觉反馈时间
+        OnLoginSuccess?.Invoke();
     }
 }

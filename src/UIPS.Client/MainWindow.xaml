@@ -57,12 +57,14 @@
                 <TextBlock Text="欢迎回来, 管理员" VerticalAlignment="Center" FontSize="16"/>
             </StackPanel>
 
-            <Border Grid.Row="1" Margin="0,20,0,0" 
-                    BorderBrush="{StaticResource SurfaceBrush}" BorderThickness="2" CornerRadius="10">
-                <TextBlock Text="这里将展示 Dashboard 内容" 
-                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Opacity="0.5" FontSize="20"/>
-            </Border>
+            <ContentControl x:Name="ContentArea" 
+                            Grid.Row="1" Margin="0,20,0,0">
+                <Border BorderBrush="{StaticResource SurfaceBrush}" BorderThickness="2" CornerRadius="10">
+                    <TextBlock Text="正在初始化 Dashboard..." 
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Opacity="0.5" FontSize="20"/>
+                </Border>
+            </ContentControl>
         </Grid>
     </Grid>
 </Window>

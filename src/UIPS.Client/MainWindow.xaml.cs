@@ -1,24 +1,35 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using UIPS.Client.Core.ViewModels;
 
-namespace UIPS.Client
+namespace UIPS.Client;
+
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    private readonly IServiceProvider _serviceProvider;
+
+    // 构造函数：由 DI 容器调用，并自动注入 IServiceProvider
+    public MainWindow(IServiceProvider serviceProvider)
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+        _serviceProvider = serviceProvider;
+
+        // 初始化导航
+        NavigateToDashboard();
+    }
+
+    private void NavigateToDashboard()
+    {
+        // 从 DI 容器取出 DashboardView
+        var view = _serviceProvider.GetRequiredService<Views.DashboardView>();
+
+        // 从 DI 容器取出 ViewModel
+        var viewModel = _serviceProvider.GetRequiredService<DashboardViewModel>();
+
+        // 绑定上下文
+        view.DataContext = viewModel;
+
+        // 放入主窗口的内容区域
+        ContentArea.Content = view;
     }
 }

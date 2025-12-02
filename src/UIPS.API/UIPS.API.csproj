@@ -21,4 +21,8 @@
     <ProjectReference Include="..\UIPS.Shared\UIPS.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

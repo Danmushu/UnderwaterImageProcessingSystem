@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UIPS.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using UIPS.Infrastructure.Data;
 namespace UIPS.Infrastructure.Migrations
 {
     [DbContext(typeof(UipsDbContext))]
-    partial class UipsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251202014207_AddSelectionTable")]
+    partial class AddSelectionTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.22");

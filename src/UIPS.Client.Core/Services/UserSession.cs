@@ -1,36 +1,45 @@
-﻿namespace UIPS.Client.Core.Services;
+﻿using System.Data;
+using System.Security.Principal;
+
+namespace UIPS.Client.Core.Services;
 
 /// <summary>
-/// 全局会话管理 (单例模式)
-/// 用于在内存中存储当前登录用户的 Token 和信息
+/// 全局会话管理
+/// 注意：已移除静态单例属性，完全由 DI 容器 (App.xaml.cs) 管理其生命周期为 Singleton
 /// </summary>
 public class UserSession
 {
-    // 1. 单例实例
-    private static UserSession _instance;
-    public static UserSession Current => _instance ??= new UserSession();
+    // 必须是 public 构造函数，DI 容器才能创建它
+    public UserSession()
+    {
+    }
 
-    private UserSession() { } // 私有构造函数，防止外部 new
+    // 移除 static Current 和 _instance
+    // 这样强制开发者必须通过构造函数注入来获取实例，确保全应用使用同一个对象
 
-    // 2. 存储的数据
-    public string AccessToken { get; private set; }
-    public string UserName { get; private set; }
+    // 存储的数据
+    public string? AccessToken { get; private set; }
+    public string? UserName { get; private set; }
     public int UserId { get; private set; }
+    public string Role { get; private set; } = "User";
+    public bool IsAdmin => Role == "Admin";
 
-    // 3. 登录成功后设置数据
-    public void SetSession(string token, string userName, int userId)
+    // 登录成功后设置数据
+    public void SetSession(string token, string userName, int userId, string role)
     {
         AccessToken = token;
         UserName = userName;
         UserId = userId;
+        Role = role; // 角色
     }
 
-    // 4. 注销时清除数据
+    // 注销时清除数据
     public void ClearSession()
     {
         AccessToken = null;
         UserName = null;
-        UserId = 0;
+        UserId = 0; 
+        Role = "User";
     }
 
     // 判断是否已登录
