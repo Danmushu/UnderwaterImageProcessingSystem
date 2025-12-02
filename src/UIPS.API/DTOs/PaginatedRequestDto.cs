@@ -1,4 +1,4 @@
-﻿namespace UIPS.Shared.DTOs;
+﻿namespace UIPS.API.DTOs;
 
 // 通用分页请求
 public class PaginatedRequestDto

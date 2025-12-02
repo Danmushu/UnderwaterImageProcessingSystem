@@ -1,11 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Refit;
-using UIPS.Client.Core.Services;
-using UIPS.Shared.DTOs;
-using System.Windows; // 用于 Visibility 转换逻辑
+using UIPS.Client.Services;
+using System.Text.Json;
 
-namespace UIPS.Client.Core.ViewModels;
+namespace UIPS.Client.ViewModels;
+
 
 public partial class LoginViewModel : ObservableObject
 {
@@ -64,7 +64,6 @@ public partial class LoginViewModel : ObservableObject
     }
 
     // 主执行命令 入口路由
-    // View 层只需要绑定这个命令，内部会自动分发到具体的业务函数
     [RelayCommand]
     private async Task ExecuteAuthAsync()
     {
@@ -114,12 +113,16 @@ public partial class LoginViewModel : ObservableObject
 
         try
         {
-            // 调用 API
-            await _authApi.RegisterAsync(new LoginRequestDto
+            // 用匿名对象传参
+            // Refit 会自动将其序列化为 JSON: { "userName": "...", "password": "..." }
+            var payload = new
             {
-                UserName = UserName,
-                Password = Password
-            });
+                UserName = this.UserName,
+                Password = this.Password
+            };
+
+            // 调用 API IAuthApi 需改为接收 object 或 dynamic
+            await _authApi.RegisterAsync(payload);
 
             // 注册成功的后续处理
             HandleRegisterSuccess();
@@ -135,15 +138,44 @@ public partial class LoginViewModel : ObservableObject
     {
         try
         {
-            // 调用 API
-            var request = new LoginRequestDto { UserName = UserName, Password = Password };
-            var response = await _authApi.LoginAsync(request);
+            // 使用匿名对象传参
+            var payload = new
+            {
+                UserName = this.UserName,
+                Password = this.Password
+            };
 
-            // 处理 Session
-            _userSession.SetSession(response.AccessToken, response.UserName, response.UserId, response.Role);
+            // 调用 API (IAuthApi 需改为返回 dynamic)
+            // 注意：backend 返回的 JSON 属性通常是小写开头 (camelCase)
+            dynamic response = await _authApi.LoginAsync(payload);
 
-            // 登录成功的后续处理
-            await HandleLoginSuccessAsync();
+            // 解析动态对象 
+            // 必须严格匹配后端返回的 JSON 字段名
+            var json = (JsonElement)response;
+
+            // 检查属性是否存在，避免 KeyNotFound 崩溃
+            if (json.TryGetProperty("accessToken", out var tokenProp) &&
+                json.TryGetProperty("userName", out var userProp) &&
+                json.TryGetProperty("userId", out var idProp) &&
+                json.TryGetProperty("role", out var roleProp))
+            {
+                string token = tokenProp.GetString() ?? "";
+                string userName = userProp.GetString() ?? "";
+                long userId = idProp.GetInt64(); // 注意类型匹配
+                string role = roleProp.GetString() ?? "";
+
+                // 处理 Session
+                _userSession.SetSession(token, userName, userId, role);
+
+                // 登录成功的后续处理
+                await HandleLoginSuccessAsync();
+            }
+            else { ErrorMessage = "登录失败：服务器返回的数据格式不正确"; }
+        }
+        catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+        {
+            // 捕获 dynamic 解析失败的错误 (比如后端改了字段名)
+            ErrorMessage = "登录失败: 服务器响应格式不匹配";
         }
         catch (ApiException ex)
         {

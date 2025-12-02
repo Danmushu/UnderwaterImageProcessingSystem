@@ -1,4 +1,4 @@
-﻿namespace UIPS.Shared.DTOs;
+﻿namespace UIPS.API.DTOs;
 
 // 单张图片信息
 public class ImageDto
@@ -8,7 +8,5 @@ public class ImageDto
     public string PreviewUrl { get; set; } = string.Empty; // 前端用来展示图片的 URL
     public DateTime UploadedAt { get; set; }
     public long FileSize { get; set; }
-
-   
     public bool IsSelected { get; set; }// 当前用户是否已选中
 }

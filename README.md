@@ -3,19 +3,19 @@
 > **水下图像处理系统**：一个基于 .NET 8 生态的高性能、模块化单体应用。
 
 ## 📖 项目简介
-[cite_start]本项目旨在构建一个能够高效摄取、存储及处理水下图像数据的集成环境 [cite: 6][cite_start]。采用 **模块化单体 (Modular Monolith)** 架构，通过严格的代码边界实现逻辑解耦，同时保持单体部署的便捷性 [cite: 7]。
+本项目旨在构建一个能够高效摄取、存储及处理水下图像数据的集成环境。采用 **模块化单体 (Modular Monolith)** 架构，通过严格的代码边界实现逻辑解耦，同时保持单体部署的便捷性。
 
 ## 🏗️ 技术架构
-- [cite_start]**核心策略**: 共享契约模式 (Shared Contract Pattern)，前后端通过 DTO 类库实现强类型协作 [cite: 17]。
-- [cite_start]**前端 (Frontend)**: WPF (.NET 8) + Material Design + CommunityToolkit.Mvvm [cite: 16, 144]。
-- [cite_start]**后端 (Backend)**: ASP.NET Core 8 Web API + EF Core 8 (SQLite) [cite: 17, 18]。
-- [cite_start]**通信**: Refit (类型安全的 REST 库) [cite: 36]。
+- **核心策略**: 共享契约模式 (Shared Contract Pattern)，前后端通过 DTO 类库实现强类型协作
+- **前端 (Frontend)**: WPF (.NET 8) + Material Design + CommunityToolkit.Mvvm
+- **后端 (Backend)**: ASP.NET Core 8 Web API + EF Core 8 (SQLite)
+- **通信**: Refit (类型安全的 REST 库)
 
 ## 📂 项目结构说明
 本项目在 Visual Studio 中使用了 **解决方案文件夹 (Solution Folders)** 进行逻辑分组，以匹配架构设计文档。
 
 ### 逻辑视图 (Visual Studio) vs 物理路径
-[cite_start]虽然物理文件平铺在 `src/` 目录下，但在 IDE 中请参考以下逻辑结构 [cite: 52-60]：
+虽然物理文件平铺在 `src/` 目录下，但在 IDE 中请参考以下逻辑结构：
 
 | 逻辑分组 (Solution Folder) | 项目名称 | 物理路径 | 职责说明 |
 | :--- | :--- | :--- | :--- |

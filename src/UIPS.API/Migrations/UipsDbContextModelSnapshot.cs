@@ -3,11 +3,11 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using UIPS.Infrastructure.Data;
+using UIPS.API.Services;
 
 #nullable disable
 
-namespace UIPS.Infrastructure.Migrations
+namespace UIPS.API.Migrations
 {
     [DbContext(typeof(UipsDbContext))]
     partial class UipsDbContextModelSnapshot : ModelSnapshot
@@ -17,7 +17,27 @@ namespace UIPS.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.22");
 
-            modelBuilder.Entity("UIPS.Domain.Entities.Image", b =>
+            modelBuilder.Entity("UIPS.API.Models.Favourite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ImageId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("SelectedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Favourites");
+                });
+
+            modelBuilder.Entity("UIPS.API.Models.Image", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,27 +67,7 @@ namespace UIPS.Infrastructure.Migrations
                     b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("UIPS.Domain.Entities.Selection", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ImageId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("SelectedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Selections");
-                });
-
-            modelBuilder.Entity("UIPS.Domain.Entities.User", b =>
+            modelBuilder.Entity("UIPS.API.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -90,9 +90,9 @@ namespace UIPS.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("UIPS.Domain.Entities.Image", b =>
+            modelBuilder.Entity("UIPS.API.Models.Image", b =>
                 {
-                    b.HasOne("UIPS.Domain.Entities.User", "Owner")
+                    b.HasOne("UIPS.API.Models.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)

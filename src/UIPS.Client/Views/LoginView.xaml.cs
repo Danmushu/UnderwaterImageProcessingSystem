@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
-using UIPS.Client.Core.ViewModels;
+using UIPS.Client.ViewModels;
 
 namespace UIPS.Client.Views
 {

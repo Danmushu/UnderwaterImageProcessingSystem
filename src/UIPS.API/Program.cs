@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UIPS.API.Services;
-using UIPS.Domain.Entities;
-using UIPS.Infrastructure.Data;
+using UIPS.API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -116,7 +115,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-app.Urls.Add("http://localhost:5216");
+//app.Urls.Add("http://localhost:5216");
 app.Urls.Add("https://localhost:7149");
 
 if (app.Environment.IsDevelopment())

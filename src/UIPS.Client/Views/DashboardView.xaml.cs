@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 using Microsoft.Win32;
-using UIPS.Client.Core.ViewModels;
+using UIPS.Client.ViewModels;
 
 namespace UIPS.Client.Views;
 

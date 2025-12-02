@@ -1,7 +1,4 @@
-﻿using System.Data;
-using System.Security.Principal;
-
-namespace UIPS.Client.Core.Services;
+﻿namespace UIPS.Client.Services;
 
 /// <summary>
 /// 全局会话管理
@@ -20,12 +17,12 @@ public class UserSession
     // 存储的数据
     public string? AccessToken { get; private set; }
     public string? UserName { get; private set; }
-    public int UserId { get; private set; }
+    public long UserId { get; private set; }
     public string Role { get; private set; } = "User";
     public bool IsAdmin => Role == "Admin";
 
     // 登录成功后设置数据
-    public void SetSession(string token, string userName, int userId, string role)
+    public void SetSession(string token, string userName, long userId, string role)
     {
         AccessToken = token;
         UserName = userName;
