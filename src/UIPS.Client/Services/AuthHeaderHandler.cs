@@ -1,6 +1,8 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net.Http; 
+using System.Net.Http.Headers; 
 
-namespace UIPS.Client.Core.Services;
+
+namespace UIPS.Client.Services;
 
 /// <summary>
 /// DelegatingHandler 拦截器，用于在 HTTP 请求头中自动添加 JWT Token。

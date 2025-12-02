@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UIPS.API.Services;
-using UIPS.Domain.Entities;
-using UIPS.Infrastructure.Data;
-using UIPS.Shared.DTOs;
+using UIPS.API.Models;
+using UIPS.API.DTOs;
 
 namespace UIPS.API.Controllers;
 
@@ -110,7 +109,7 @@ public class ImageController(UipsDbContext context, IFileService fileService) : 
         if (!long.TryParse(userIdStr, out var userId)) return Unauthorized();
 
         // 先查出当前用户所有选中的图片 ID (用 HashSet 提高查找性能)
-        var mySelectionIds = await context.Selections
+        var mySelectionIds = await context.Favourites
             .Where(s => s.UserId == userId)
             .Select(s => s.ImageId)
             .ToListAsync();
@@ -232,20 +231,20 @@ public class ImageController(UipsDbContext context, IFileService fileService) : 
         if (image == null) return NotFound("图片不存在");
 
         // 检查是否已经选过 (查 Selections 表)
-        var existingSelection = await context.Selections
+        var existingSelection = await context.Favourites
             .FirstOrDefaultAsync(s => s.UserId == userId && s.ImageId == imageId);
 
         if (existingSelection != null)
         {
             // 如果已选中，则取消选中 (删除记录)
-            context.Selections.Remove(existingSelection);
+            context.Favourites.Remove(existingSelection);
             await context.SaveChangesAsync();
             return Ok(new { IsSelected = false }); // 告诉前端现在的状态
         }
         else
         {
             // 如果未选中，则添加记录
-            context.Selections.Add(new Selection
+            context.Favourites.Add(new Favourite
             {
                 UserId = userId,
                 ImageId = imageId

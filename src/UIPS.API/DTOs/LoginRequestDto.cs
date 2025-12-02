@@ -1,4 +1,4 @@
-﻿namespace UIPS.Shared.DTOs;
+﻿namespace UIPS.API.DTOs;
 
 // 简单的登录请求载荷
 public class LoginRequestDto

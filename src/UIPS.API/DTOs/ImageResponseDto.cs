@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace UIPS.Shared.DTOs;
+﻿namespace UIPS.API.DTOs;
 
 /// <summary>
 /// 上传成功后返回给前端的图片元数据

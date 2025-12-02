@@ -1,4 +1,4 @@
-﻿namespace UIPS.Shared.DTOs;
+﻿namespace UIPS.API.DTOs;
 
 public class LoginResponseDto
 {

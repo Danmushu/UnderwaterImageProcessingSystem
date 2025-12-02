@@ -3,9 +3,8 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Refit;
-using UIPS.Client.Core.Services;
-using UIPS.Client.Core.ViewModels;
-using UIPS.Shared.Api;
+using UIPS.Client.Services;
+using UIPS.Client.ViewModels;
 
 namespace UIPS.Client;
 
