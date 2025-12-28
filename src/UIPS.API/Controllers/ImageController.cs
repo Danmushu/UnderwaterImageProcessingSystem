@@ -253,4 +253,122 @@ public class ImageController(UipsDbContext context, IFileService fileService) : 
             return Ok(new { IsSelected = true }); // 告诉前端现在的状态
         }
     }
+
+
+    /// <summary>
+    /// 接口：批量上传图片
+    /// </summary>
+    [HttpPost("upload/batch")]
+    [ProducesResponseType(typeof(List<ImageResponseDto>), 200)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> UploadBatch([FromForm] List<IFormFile> files)
+    {
+        if (files == null || files.Count == 0)
+        {
+            return BadRequest("未检测到文件。");
+        }
+
+        // 获取当前用户 ID
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized("无法识别用户身份。");
+        }
+
+        var responses = new List<ImageResponseDto>();
+
+        foreach (var file in files)
+        {
+            if (file.Length == 0) continue;
+
+            // 保存文件
+            var storedPath = await fileService.SaveFileAsync(file.OpenReadStream(), file.FileName);
+
+            // 创建数据库实体
+            var imageEntity = new Image
+            {
+                OriginalFileName = file.FileName,
+                StoredPath = storedPath,
+                FileSize = file.Length,
+                OwnerId = userId,
+                UploadedAt = DateTime.UtcNow
+            };
+
+            context.Images.Add(imageEntity);
+            await context.SaveChangesAsync();
+
+            responses.Add(new ImageResponseDto
+            {
+                Id = imageEntity.Id,
+                OriginalFileName = imageEntity.OriginalFileName,
+                UploadedAt = imageEntity.UploadedAt,
+                FileSize = imageEntity.FileSize,
+                Url = $"/api/images/view/{imageEntity.Id}"
+            });
+        }
+
+        return Ok(responses);
+    }
+
+    /// <summary>
+    /// 接口：获取唯一文件名列表
+    /// </summary>
+    [HttpGet("filenames")]
+    [ProducesResponseType(typeof(List<string>), 200)]
+    public async Task<ActionResult<List<string>>> GetUniqueFileNames()
+    {
+        var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!long.TryParse(userIdStr, out var userId)) return Unauthorized();
+
+        // 查询当前用户的所有唯一文件名
+        var fileNames = await context.Images
+            .Where(i => i.OwnerId == userId)
+            .Select(i => i.OriginalFileName)
+            .Distinct()
+            .OrderBy(f => f)
+            .ToListAsync();
+
+        return Ok(fileNames);
+    }
+
+    /// <summary>
+    /// 接口：根据原始文件名获取所有同名图片
+    /// </summary>
+    [HttpGet("by-filename/{fileName}")]
+    [ProducesResponseType(typeof(List<ImageDto>), 200)]
+    public async Task<ActionResult<List<ImageDto>>> GetImagesByFileName(string fileName)
+    {
+        var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!long.TryParse(userIdStr, out var userId)) return Unauthorized();
+
+        // 先查出当前用户所有选中的图片 ID
+        var selectedIds = await context.Favourites
+            .Where(s => s.UserId == userId)
+            .Select(s => s.ImageId)
+            .ToListAsync();
+        var selectedSet = selectedIds.ToHashSet();
+
+        // 查询该文件名的所有图片
+        var images = await context.Images
+            .Where(i => i.OwnerId == userId && i.OriginalFileName == fileName)
+            .OrderByDescending(i => i.UploadedAt)
+            .Select(i => new ImageDto
+            {
+                Id = i.Id,
+                OriginalFileName = i.OriginalFileName,
+                UploadedAt = i.UploadedAt,
+                FileSize = i.FileSize,
+                PreviewUrl = $"/api/images/{i.Id}/file",
+                IsSelected = false // 稍后填充
+            })
+            .ToListAsync();
+
+        // 填充选中状态
+        foreach (var img in images)
+        {
+            img.IsSelected = selectedSet.Contains((int)img.Id);
+        }
+
+        return Ok(images);
+    }
 }
