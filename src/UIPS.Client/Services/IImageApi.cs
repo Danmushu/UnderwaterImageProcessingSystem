@@ -1,7 +1,7 @@
 ﻿using Refit;
 using System.Threading.Tasks;
 
-namespace UIPS.Client.Services // 建议命名空间改为 Client 端的
+namespace UIPS.Client.Services
 {
     public interface IImageApi
     {
@@ -13,11 +13,29 @@ namespace UIPS.Client.Services // 建议命名空间改为 Client 端的
         Task<dynamic> UploadImage([AliasAs("file")] StreamPart file);
 
         /// <summary>
+        /// 批量上传图片
+        /// </summary>
+        [Multipart]
+        [Post("/api/images/upload/batch")]
+        Task<dynamic> UploadBatch([AliasAs("files")] IEnumerable<StreamPart> files);
+
+        /// <summary>
         /// 获取图片列表
-        /// 这里的 pageIndex 和 pageSize 会自动拼接成URL参数：/api/images?pageIndex=1&pageSize=10
         /// </summary>
         [Get("/api/images")]
         Task<dynamic> GetImages([Query] int pageIndex, [Query] int pageSize);
+
+        /// <summary>
+        /// 获取唯一文件名列表
+        /// </summary>
+        [Get("/api/images/filenames")]
+        Task<dynamic> GetUniqueFileNames();
+
+        /// <summary>
+        /// 根据文件名获取图片列表
+        /// </summary>
+        [Get("/api/images/by-filename/{fileName}")]
+        Task<dynamic> GetImagesByFileName(string fileName);
 
         /// <summary>
         /// 删除图片
