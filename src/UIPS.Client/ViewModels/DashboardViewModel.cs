@@ -4,14 +4,11 @@ using Refit;
 using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.IO;
-using System.Text.Json; 
-using System.Xml.Linq;
-using UIPS.Client.Services;  
+using System.Text.Json;
 using UIPS.Client.Services;
 
 namespace UIPS.Client.ViewModels;
 
-// 构造函数注入 IImageApi，所有上传请求都会自动携带 Token
 public partial class DashboardViewModel(IImageApi imageApi, UserSession userSession) : ObservableObject
 {
     [ObservableProperty]
@@ -23,14 +20,20 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
     [ObservableProperty]
     private bool _isUploading;
 
-    // 修改点 1: 集合类型改为本地模型 ClientImageModel
     [ObservableProperty]
     private ObservableCollection<dynamic> _images = new();
+
+    // ===== 新增属性 =====
+    [ObservableProperty]
+    private ObservableCollection<string> _fileNameGroups = new();
+
+    [ObservableProperty]
+    private string? _selectedFileName;
 
     public bool IsAdmin => userSession.IsAdmin;
 
     /// <summary>
-    /// 上传文件命令
+    /// 单文件上传命令
     /// </summary>
     [RelayCommand]
     private async Task UploadFileAsync()
@@ -56,22 +59,16 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
             };
 
             var filePart = new StreamPart(stream, fileName, contentType);
-
-            // 调用 API (返回 dynamic)
             var response = await imageApi.UploadImage(filePart);
 
-            // 解析 dynamic (JsonElement)
-            // System.Text.Json 默认返回 JsonElement，区分大小写
             var json = (JsonElement)response;
-
-            // 假设后端返回: { "id": 1, "originalFileName": "xxx.jpg" }
             var id = GetJsonLong(json, "id");
             var serverFileName = GetJsonString(json, "originalFileName");
 
             UploadStatus = $"上传成功! ID: {id}, 文件名: {serverFileName}";
             SelectedFilePath = null;
 
-            await LoadImagesAsync();
+            await LoadFileNameGroupsAsync();
         }
         catch (ApiException ex)
         {
@@ -88,14 +85,89 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
     }
 
     /// <summary>
-    /// 加载图片列表
+    /// 批量上传命令
+    /// </summary>
+    [RelayCommand]
+    private async Task UploadMultipleFilesAsync()
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Multiselect = true,
+            Filter = "图片文件|*.jpg;*.jpeg;*.png;*.bmp|所有文件|*.*",
+            Title = "选择要上传的图片文件（可多选）"
+        };
+
+        if (dialog.ShowDialog() != true)
+            return;
+
+        var files = dialog.FileNames.ToList();
+
+        if (files.Count == 0)
+        {
+            UploadStatus = "未选择任何文件。";
+            return;
+        }
+
+        IsUploading = true;
+        UploadStatus = $"正在上传 {files.Count} 个文件...";
+
+        try
+        {
+            var streamParts = new List<StreamPart>();
+
+            foreach (var filePath in files)
+            {
+                var stream = File.OpenRead(filePath);
+                var fileName = Path.GetFileName(filePath);
+                var extension = Path.GetExtension(filePath).ToLower();
+
+                string contentType = extension switch
+                {
+                    ".jpg" or ".jpeg" => "image/jpeg",
+                    ".png" => "image/png",
+                    ".bmp" => "image/bmp",
+                    _ => "application/octet-stream"
+                };
+
+                streamParts.Add(new StreamPart(stream, fileName, contentType));
+            }
+
+            var response = await imageApi.UploadBatch(streamParts);
+
+            // 关闭所有流
+            foreach (var part in streamParts)
+            {
+                part.Value.Dispose();
+            }
+
+            UploadStatus = $"成功上传 {files.Count} 个文件！";
+
+            // 刷新文件名列表
+            await LoadFileNameGroupsAsync();
+        }
+        catch (ApiException ex)
+        {
+            UploadStatus = $"上传失败! {ex.StatusCode}: {ex.Content ?? ex.ReasonPhrase}";
+        }
+        catch (Exception ex)
+        {
+            UploadStatus = $"发生未知错误: {ex.Message}";
+        }
+        finally
+        {
+            IsUploading = false;
+        }
+    }
+
+    /// <summary>
+    /// 加载图片列表（所有图片）
     /// </summary>
     [RelayCommand]
     public async Task LoadImagesAsync()
     {
         try
         {
-            var result = await imageApi.GetImages(1, 50); // Refit 返回的是 JsonElement
+            var result = await imageApi.GetImages(1, 50);
 
             Images.Clear();
             var baseUrl = "https://localhost:7149";
@@ -107,28 +179,105 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
             {
                 foreach (var itemJson in itemsElement.EnumerateArray())
                 {
-                    // 动态创建对象
                     dynamic img = new ExpandoObject();
 
-                    // 手动把 JSON 里的字段拷出来 注意大小写
-                    // 后端 JSON 是小写 (id, originalFileName), 前端绑定习惯大写 (Id, Name)
-                    // 你可以在这里自己决定属性名叫什么
                     img.Id = GetJsonLong(itemJson, "id");
                     img.OriginalFileName = GetJsonString(itemJson, "originalFileName");
                     img.IsSelected = itemJson.TryGetProperty("isSelected", out var sel) && sel.GetBoolean();
 
-                    // 处理 URL 拼接逻辑
                     var rawUrl = GetJsonString(itemJson, "previewUrl");
                     img.PreviewUrl = $"{baseUrl}{rawUrl}?access_token={token}";
 
-                    // 加入集合
                     Images.Add(img);
                 }
             }
         }
         catch (Exception ex)
         {
-            // Error handling
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
+    }
+
+    /// <summary>
+    /// 加载文件名分组列表
+    /// </summary>
+    [RelayCommand]
+    public async Task LoadFileNameGroupsAsync()
+    {
+        try
+        {
+            var result = await imageApi.GetUniqueFileNames();
+
+            FileNameGroups.Clear();
+
+            var jsonArray = (JsonElement)result;
+
+            if (jsonArray.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in jsonArray.EnumerateArray())
+                {
+                    if (item.ValueKind == JsonValueKind.String)
+                    {
+                        var fileName = item.GetString();
+                        if (!string.IsNullOrEmpty(fileName))
+                        {
+                            FileNameGroups.Add(fileName);
+                        }
+                    }
+                }
+            }
+
+            UploadStatus = $"共找到 {FileNameGroups.Count} 个不同的文件名";
+        }
+        catch (Exception ex)
+        {
+            UploadStatus = $"加载文件名列表失败: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
+    }
+
+    /// <summary>
+    /// 选择文件名并加载该文件名的所有图片
+    /// </summary>
+    [RelayCommand]
+    private async Task SelectFileNameAsync(string? fileName)
+    {
+        if (string.IsNullOrEmpty(fileName)) return;
+
+        SelectedFileName = fileName;
+
+        try
+        {
+            var result = await imageApi.GetImagesByFileName(fileName);
+
+            Images.Clear();
+            var baseUrl = "https://localhost:7149";
+            var token = userSession.AccessToken;
+
+            var jsonArray = (JsonElement)result;
+
+            if (jsonArray.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var itemJson in jsonArray.EnumerateArray())
+                {
+                    dynamic img = new ExpandoObject();
+
+                    img.Id = GetJsonLong(itemJson, "id");
+                    img.OriginalFileName = GetJsonString(itemJson, "originalFileName");
+                    img.IsSelected = itemJson.TryGetProperty("isSelected", out var sel) && sel.GetBoolean();
+
+                    var rawUrl = GetJsonString(itemJson, "previewUrl");
+                    img.PreviewUrl = $"{baseUrl}{rawUrl}?access_token={token}";
+
+                    Images.Add(img);
+                }
+            }
+
+            UploadStatus = $"已加载文件名 '{fileName}' 的 {Images.Count} 张图片";
+        }
+        catch (Exception ex)
+        {
+            UploadStatus = $"加载失败: {ex.Message}";
             System.Diagnostics.Debug.WriteLine(ex);
         }
     }
@@ -173,7 +322,7 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
             // 更新本地模型状态
             image.IsSelected = !image.IsSelected;
 
-            // 触发 UI 刷新 替换集合元素 trick
+            // 触发 UI 刷新
             var index = Images.IndexOf(image);
             if (index >= 0) Images[index] = image;
         }
@@ -184,7 +333,6 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
     }
 
     // --- Helper Methods ---
-    // 为了防止 Key 不存在报错，封装简单的安全读取方法
     private long GetJsonLong(JsonElement element, string key)
     {
         if (element.TryGetProperty(key, out var val) && val.ValueKind == JsonValueKind.Number)
