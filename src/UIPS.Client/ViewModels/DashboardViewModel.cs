@@ -307,30 +307,30 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
         }
     }
 
-    /// <summary>
-    /// 切换选中状态
-    /// </summary>
-    [RelayCommand]
-    private async Task ToggleSelectionAsync(dynamic image)
-    {
-        if (image == null) return;
-
-        try
-        {
-            await imageApi.ToggleSelection(image.Id);
-
-            // 更新本地模型状态
-            image.IsSelected = !image.IsSelected;
-
-            // 触发 UI 刷新
-            var index = Images.IndexOf(image);
-            if (index >= 0) Images[index] = image;
-        }
-        catch (Exception ex)
-        {
-            UploadStatus = $"操作失败: {ex.Message}";
-        }
-    }
+    /// <summary> 
+    /// 切换选中状态 
+    /// </summary> 
+    [RelayCommand] 
+    private async Task ToggleSelectionAsync(dynamic image) 
+    { 
+        if (image == null) return; 
+ 
+        try 
+        { 
+            await imageApi.ToggleSelection(image.Id); 
+ 
+            // 更新本地模型状态 
+            image.IsSelected = !image.IsSelected; 
+ 
+            // 触发 UI 刷新 
+            var index = Images.IndexOf(image); 
+            if (index >= 0) Images[index] = image; 
+        } 
+        catch (Exception ex)  
+        { 
+            UploadStatus = $"操作失败: {ex.Message}"; 
+        } 
+    } 
 
     // --- Helper Methods ---
     private long GetJsonLong(JsonElement element, string key)

@@ -217,42 +217,42 @@ public class ImageController(UipsDbContext context, IFileService fileService) : 
         return NoContent(); // 返回 204
     }
 
-    // 切换选中状态接口
-    [HttpPost("{id}/select")]
-    public async Task<IActionResult> ToggleSelection(long id)
-    {
-        var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!long.TryParse(userIdStr, out var userId)) return Unauthorized();
-
-        var imageId = (int)id;
-
-        // 检查图片是否存在
-        var image = await context.Images.FindAsync(imageId);
-        if (image == null) return NotFound("图片不存在");
-
-        // 检查是否已经选过 (查 Selections 表)
-        var existingSelection = await context.Favourites
-            .FirstOrDefaultAsync(s => s.UserId == userId && s.ImageId == imageId);
-
-        if (existingSelection != null)
-        {
-            // 如果已选中，则取消选中 (删除记录)
-            context.Favourites.Remove(existingSelection);
-            await context.SaveChangesAsync();
-            return Ok(new { IsSelected = false }); // 告诉前端现在的状态
-        }
-        else
-        {
-            // 如果未选中，则添加记录
-            context.Favourites.Add(new Favourite
-            {
-                UserId = userId,
-                ImageId = imageId
-            });
-            await context.SaveChangesAsync();
-            return Ok(new { IsSelected = true }); // 告诉前端现在的状态
-        }
-    }
+    // 切换选中状态接口 
+    [HttpPost("{id}/select")] 
+    public async Task<IActionResult> ToggleSelection(long id) 
+    { 
+        var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; 
+        if (!long.TryParse(userIdStr, out var userId)) return Unauthorized(); 
+ 
+        var imageId = (int)id; 
+ 
+        // 检查图片是否存在 
+        var image = await context.Images.FindAsync(imageId); 
+        if (image == null) return NotFound("图片不存在"); 
+ 
+        // 检查是否已经选过 (查 Selections 表) 
+        var existingSelection = await context.Favourites 
+            .FirstOrDefaultAsync(s => s.UserId == userId && s.ImageId == imageId); 
+ 
+        if (existingSelection != null) 
+        { 
+            // 如果已选中，则取消选中 (删除记录) 
+            context.Favourites.Remove(existingSelection); 
+            await context.SaveChangesAsync(); 
+            return Ok(new { IsSelected = false }); // 告诉前端现在的状态 
+        } 
+        else 
+        { 
+            // 如果未选中，则添加记录 
+            context.Favourites.Add(new Favourite 
+            { 
+                UserId = userId, 
+                ImageId = imageId 
+            }); 
+            await context.SaveChangesAsync(); 
+            return Ok(new { IsSelected = true }); // 告诉前端现在的状态 
+        } 
+    } 
 
 
     /// <summary>
