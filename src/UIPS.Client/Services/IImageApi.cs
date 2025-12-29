@@ -43,10 +43,10 @@ namespace UIPS.Client.Services
         [Delete("/api/images/{id}")]
         Task DeleteImage(long id);
 
-        /// <summary>
-        /// 切换选中 (点赞/标记)
-        /// </summary>
-        [Post("/api/images/{id}/select")]
-        Task ToggleSelection(long id);
+        /// <summary> 
+        /// 切换选中 (点赞/标记) 
+        /// </summary> 
+        [Post("/api/images/{id}/select")] 
+        Task ToggleSelection(long id); 
     }
 }

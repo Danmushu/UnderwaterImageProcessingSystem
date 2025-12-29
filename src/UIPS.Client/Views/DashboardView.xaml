@@ -166,20 +166,20 @@
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
 
                                     <ToggleButton 
-                                        Style="{StaticResource MaterialDesignActionToggleButton}"
-                                        Width="32" Height="32"
-                                        HorizontalAlignment="Left" VerticalAlignment="Top"
-                                        Margin="5"
-                                        IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                        Command="{Binding DataContext.ToggleSelectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                        CommandParameter="{Binding}">
-                                        <ToggleButton.Content>
-                                            <materialDesign:PackIcon Kind="HeartOutline" Foreground="White" Width="20" Height="20"/>
-                                        </ToggleButton.Content>
-                                        <materialDesign:ToggleButtonAssist.OnContent>
-                                            <materialDesign:PackIcon Kind="Heart" Foreground="Red" Width="20" Height="20"/>
-                                        </materialDesign:ToggleButtonAssist.OnContent>
-                                    </ToggleButton>
+                                        Style="{StaticResource MaterialDesignActionToggleButton}" 
+                                        Width="32" Height="32" 
+                                        HorizontalAlignment="Left" VerticalAlignment="Top" 
+                                        Margin="5" 
+                                        IsChecked="{Binding IsSelected, Mode=OneWay}" 
+                                        Command="{Binding DataContext.ToggleSelectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                        CommandParameter="{Binding}"> 
+                                        <ToggleButton.Content> 
+                                            <materialDesign:PackIcon Kind="HeartOutline" Foreground="White" Width="20" Height="20"/> 
+                                        </ToggleButton.Content> 
+                                        <materialDesign:ToggleButtonAssist.OnContent> 
+                                            <materialDesign:PackIcon Kind="Heart" Foreground="Red" Width="20" Height="20"/> 
+                                        </materialDesign:ToggleButtonAssist.OnContent> 
+                                    </ToggleButton> 
 
                                     <Button Style="{StaticResource MaterialDesignIconForegroundButton}"
                                         Width="30" Height="30"
