@@ -1,0 +1,179 @@
+name: CI/CD Pipeline
+
+on:
+  # 在推送到任何分支时触发（包括 feat 分支）
+  push:
+    branches: [ '**' ]
+  # PR 时也触发（包括 fork 的 PR）
+  pull_request:
+    branches: [ main, develop ]
+  # 允许手动触发
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # ========== 构建和测试 API ==========
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 获取完整历史
+      
+    - name: 🔧 Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: 📦 Cache NuGet packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+        
+    - name: 📦 Restore Dependencies
+      run: dotnet restore
+      
+    - name: 🔨 Build Solution
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: 🧪 Run Tests
+      run: |
+        dotnet test tests/UIPS.API.Tests/UIPS.API.Tests.csproj \
+          --configuration Release \
+          --no-build \
+          --verbosity normal \
+          --logger "trx;LogFileName=test-results.trx" \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults
+      
+    - name: 📊 Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: TestResults/**/*.trx
+        retention-days: 30
+        
+    - name: 📈 Upload Coverage Reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-reports
+        path: TestResults/**/coverage.cobertura.xml
+        retention-days: 30
+        
+    - name: 💬 Comment Test Results on PR
+      uses: dorny/test-reporter@v1
+      if: github.event_name == 'pull_request'
+      with:
+        name: Test Results
+        path: TestResults/**/*.trx
+        reporter: dotnet-trx
+        fail-on-error: true
+
+  # ========== 代码质量检查 ==========
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: 📦 Restore Dependencies
+      run: dotnet restore
+      
+    - name: 🔍 Run Code Analysis
+      run: dotnet build src/UIPS.API/UIPS.API.csproj --configuration Release /p:TreatWarningsAsErrors=false
+      
+    - name: 📏 Check Code Style
+      run: dotnet format --verify-no-changes --verbosity diagnostic || echo "Code style issues found"
+
+  # ========== 安全扫描 ==========
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: 🔒 Scan for Vulnerable Packages
+      run: |
+        dotnet list package --vulnerable --include-transitive 2>&1 | tee security-scan.txt
+        
+    - name: 📤 Upload Security Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-scan
+        path: security-scan.txt
+
+  # ========== 构建 Windows 客户端 ==========
+  build-client:
+    name: Build WPF Client
+    runs-on: windows-latest
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: 📦 Restore Dependencies
+      run: dotnet restore src/UIPS.Client/UIPS.Client.csproj
+      
+    - name: 🔨 Build Client
+      run: dotnet build src/UIPS.Client/UIPS.Client.csproj --configuration Release --no-restore
+
+  # ========== 发布构建产物（仅 main 分支）==========
+  publish-artifacts:
+    name: Publish Artifacts
+    runs-on: ubuntu-latest
+    needs: [build-and-test, code-quality, security-scan]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: 📦 Publish API
+      run: |
+        dotnet publish src/UIPS.API/UIPS.API.csproj \
+          --configuration Release \
+          --output ./publish/api
+          
+    - name: 📤 Upload API Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: api-release
+        path: ./publish/api
+        retention-days: 30

@@ -35,3 +35,9 @@ src/UIPS.API/Uploads/
 
 # User secrets
 secrets.json
+
+# Test Results
+TestResults/
+*.trx
+*.coverage
+*.cover

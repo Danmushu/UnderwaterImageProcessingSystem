@@ -42,3 +42,6 @@
 
   - **Git Flow**: `main` 分支禁止直接提交，开发请切出 `feat/xxx` 分支。
   - **样式**: UI 使用 Deep Ocean Palette (深海主题)，资源合并顺序严禁修改 `App.xaml` 。
+
+![CI/CD](https://github.com/ekkure/UnderwaterImageProcessingSystem/workflows/CI%2FCD%20Pipeline/badge.svg)
+![Tests](https://github.com/ekkure/UnderwaterImageProcessingSystem/workflows/PR%20Check/badge.svg)
