@@ -70,12 +70,14 @@ public class ImageControllerTests : IDisposable
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetUniqueFileNames();
+        var actionResult = await _controller.GetUniqueFileNames();
 
         // Assert
+        var result = actionResult.Result;
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
         var fileNames = okResult!.Value as List<string>;
+        fileNames.Should().NotBeNull();
         fileNames.Should().HaveCount(2);
         fileNames.Should().Contain("test1.jpg");
         fileNames.Should().Contain("test2.jpg");
@@ -94,14 +96,31 @@ public class ImageControllerTests : IDisposable
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetImagesByFileName(fileName);
+        var actionResult = await _controller.GetImagesByFileName(fileName);
 
         // Assert
+        var result = actionResult.Result;
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
         var images = okResult!.Value as List<UIPS.API.DTOs.ImageDto>;
+        images.Should().NotBeNull();
         images.Should().HaveCount(2);
         images.Should().AllSatisfy(img => img.OriginalFileName.Should().Be(fileName));
+    }
+
+    [Fact]
+    public async Task GetUniqueFileNames_WhenNoImages_ReturnsEmptyList()
+    {
+        // Act
+        var actionResult = await _controller.GetUniqueFileNames();
+
+        // Assert
+        var result = actionResult.Result;
+        result.Should().BeOfType<OkObjectResult>();
+        var okResult = result as OkObjectResult;
+        var fileNames = okResult!.Value as List<string>;
+        fileNames.Should().NotBeNull();
+        fileNames.Should().BeEmpty();
     }
 
     public void Dispose()
