@@ -1,0 +1,53 @@
+name: PR Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  pr-validation:
+    name: Validate Pull Request
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        
+    - name: 🔧 Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: 📦 Restore
+      run: dotnet restore
+      
+    - name: 🔨 Build
+      run: dotnet build --no-restore --configuration Release
+      
+    - name: 🧪 Test
+      run: dotnet test --no-build --configuration Release --verbosity normal
+      
+    - name: ✅ PR Status Comment
+      uses: actions/github-script@v7
+      if: always()
+      with:
+        script: |
+          const status = '${{ job.status }}';
+          const icon = status === 'success' ? '✅' : '❌';
+          const body = `${icon} **PR 自动检查${status === 'success' ? '通过' : '失败'}**
+          
+          **分支**: \`${{ github.head_ref }}\`
+          **提交**: \`${{ github.event.pull_request.head.sha }}\`
+          **运行**: [查看详情](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          
+          ${status === 'success' ? '代码已通过所有自动化测试！✨' : '请修复测试失败的问题。'}`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
