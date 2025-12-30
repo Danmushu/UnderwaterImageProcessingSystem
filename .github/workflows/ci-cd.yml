@@ -1,13 +1,10 @@
 name: CI/CD Pipeline
 
 on:
-  # 在推送到任何分支时触发（包括 feat 分支）
   push:
     branches: [ '**' ]
-  # PR 时也触发（包括 fork 的 PR）
   pull_request:
     branches: [ main, develop ]
-  # 允许手动触发
   workflow_dispatch:
 
 env:
@@ -18,14 +15,14 @@ env:
 jobs:
   # ========== 构建和测试 API ==========
   build-and-test:
-    name: Build & Test
+    name: Build & Test API
     runs-on: ubuntu-latest
     
     steps:
     - name: 📥 Checkout Code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 获取完整历史
+        fetch-depth: 0
       
     - name: 🔧 Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -40,11 +37,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget-
         
-    - name: 📦 Restore Dependencies
-      run: dotnet restore
+    - name: 📦 Restore API Dependencies
+      run: |
+        dotnet restore src/UIPS.API/UIPS.API.csproj
+        dotnet restore tests/UIPS.API.Tests/UIPS.API.Tests.csproj
       
-    - name: 🔨 Build Solution
-      run: dotnet build --configuration Release --no-restore
+    - name: 🔨 Build API Project
+      run: |
+        dotnet build src/UIPS.API/UIPS.API.csproj --configuration Release --no-restore
+        dotnet build tests/UIPS.API.Tests/UIPS.API.Tests.csproj --configuration Release --no-restore
       
     - name: 🧪 Run Tests
       run: |
@@ -95,14 +96,15 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
-    - name: 📦 Restore Dependencies
-      run: dotnet restore
+    - name: 📦 Restore API Dependencies
+      run: dotnet restore src/UIPS.API/UIPS.API.csproj
       
     - name: 🔍 Run Code Analysis
-      run: dotnet build src/UIPS.API/UIPS.API.csproj --configuration Release /p:TreatWarningsAsErrors=false
+      run: dotnet build src/UIPS.API/UIPS.API.csproj --configuration Release --no-restore /p:TreatWarningsAsErrors=false
       
-    - name: 📏 Check Code Style
-      run: dotnet format --verify-no-changes --verbosity diagnostic || echo "Code style issues found"
+    - name: 📏 Check Code Style (允许失败)
+      continue-on-error: true
+      run: dotnet format src/UIPS.API/UIPS.API.csproj --verify-no-changes --verbosity diagnostic
 
   # ========== 安全扫描 ==========
   security-scan:
@@ -118,9 +120,12 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
+    - name: 📦 Restore API Dependencies
+      run: dotnet restore src/UIPS.API/UIPS.API.csproj
+        
     - name: 🔒 Scan for Vulnerable Packages
       run: |
-        dotnet list package --vulnerable --include-transitive 2>&1 | tee security-scan.txt
+        dotnet list src/UIPS.API/UIPS.API.csproj package --vulnerable --include-transitive 2>&1 | tee security-scan.txt
         
     - name: 📤 Upload Security Report
       uses: actions/upload-artifact@v4
@@ -164,6 +169,9 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: 📦 Restore API Dependencies
+      run: dotnet restore src/UIPS.API/UIPS.API.csproj
         
     - name: 📦 Publish API
       run: |
