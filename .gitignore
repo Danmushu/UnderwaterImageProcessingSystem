@@ -41,3 +41,6 @@ TestResults/
 *.trx
 *.coverage
 *.cover
+
+# docs
+docs_ignore/
