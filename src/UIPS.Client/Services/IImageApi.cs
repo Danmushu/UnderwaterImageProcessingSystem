@@ -23,7 +23,7 @@ namespace UIPS.Client.Services
         /// 获取图片列表
         /// </summary>
         [Get("/api/images")]
-        Task<dynamic> GetImages([Query] int pageIndex, [Query] int pageSize);
+        Task<dynamic> GetImages([Query("PageIndex")] int pageIndex, [Query("PageSize")] int pageSize);
 
         /// <summary>
         /// 获取唯一文件名列表

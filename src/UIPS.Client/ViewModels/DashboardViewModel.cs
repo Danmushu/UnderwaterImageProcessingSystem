@@ -32,27 +32,40 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
 
     // ===== 分页相关属性 =====
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PageInfo))]
     private int _currentPage = 1;
 
     [ObservableProperty]
-    private int _pageSize = 12;
+    [NotifyPropertyChangedFor(nameof(PageInfo))]
+    private int _pageSize = 5;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PageInfo))]
     private int _totalCount = 0;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PageInfo))]
     private int _totalPages = 0;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanGoPrevious))]
+    [NotifyCanExecuteChangedFor(nameof(GoToPreviousPageCommand))]
     private bool _hasPreviousPage = false;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyCanExecuteChangedFor(nameof(GoToNextPageCommand))]
     private bool _hasNextPage = false;
 
     public bool CanGoPrevious => HasPreviousPage;
     public bool CanGoNext => HasNextPage;
+
+    // ===== 图片预览相关属性 =====
+    [ObservableProperty]
+    private bool _isPreviewOpen = false;
+
+    [ObservableProperty]
+    private string? _previewImageUrl;
 
     public string PageInfo => TotalCount > 0 
         ? $"第 {CurrentPage}/{TotalPages} 页 · 共 {TotalCount} 张" 
@@ -210,7 +223,6 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
                 TotalPages = (int)Math.Ceiling((double)TotalCount / PageSize);
                 HasPreviousPage = CurrentPage > 1;
                 HasNextPage = CurrentPage < TotalPages;
-                OnPropertyChanged(nameof(PageInfo));
             }
 
             // 解析图片列表
@@ -411,6 +423,27 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
         { 
             UploadStatus = $"操作失败: {ex.Message}"; 
         } 
+    }
+
+    /// <summary>
+    /// 打开图片预览
+    /// </summary>
+    [RelayCommand]
+    private void PreviewImage(dynamic image)
+    {
+        if (image == null) return;
+        PreviewImageUrl = image.PreviewUrl;
+        IsPreviewOpen = true;
+    }
+
+    /// <summary>
+    /// 关闭图片预览
+    /// </summary>
+    [RelayCommand]
+    private void ClosePreview()
+    {
+        IsPreviewOpen = false;
+        PreviewImageUrl = null;
     } 
 
     // --- Helper Methods ---

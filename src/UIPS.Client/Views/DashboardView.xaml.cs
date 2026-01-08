@@ -9,6 +9,16 @@ public partial class DashboardView : UserControl
     public DashboardView()
     {
         InitializeComponent();
+        Loaded += DashboardView_Loaded;
+    }
+
+    private async void DashboardView_Loaded(object sender, System.Windows.RoutedEventArgs e)
+    {
+        // 页面加载时自动加载图片列表
+        if (DataContext is DashboardViewModel vm)
+        {
+            await vm.LoadImagesAsync();
+        }
     }
 
     private void BrowseButton_Click(object sender, System.Windows.RoutedEventArgs e)
