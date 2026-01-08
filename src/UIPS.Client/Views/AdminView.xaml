@@ -1,0 +1,282 @@
+<UserControl x:Class="UIPS.Client.Views.AdminView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:viewmodels="clr-namespace:UIPS.Client.ViewModels;assembly=UIPS.Client"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance viewmodels:AdminViewModel}"
+             Background="{StaticResource MaterialDesignPaper}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题 -->
+        <TextBlock Grid.Row="0" Text="管理员面板" 
+                   Style="{StaticResource MaterialDesignHeadline5TextBlock}" 
+                   Margin="0,0,0,20"/>
+
+        <!-- 统计信息卡片 -->
+        <materialDesign:Card Grid.Row="1" Padding="20" Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 总用户数 -->
+                <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                    <TextBlock Text="总用户数" FontSize="12" Foreground="Gray"/>
+                    <TextBlock Text="{Binding TotalUsers}" 
+                               FontSize="24" 
+                               FontWeight="Bold"
+                               Foreground="{StaticResource MaterialDesign.Brush.Primary}"/>
+                </StackPanel>
+
+                <!-- 管理员数 -->
+                <StackPanel Grid.Column="1" Margin="0,0,20,0">
+                    <TextBlock Text="管理员数" FontSize="12" Foreground="Gray"/>
+                    <TextBlock Text="{Binding TotalAdmins}" 
+                               FontSize="24" 
+                               FontWeight="Bold"
+                               Foreground="{StaticResource MaterialDesign.Brush.Secondary}"/>
+                </StackPanel>
+
+                <!-- 总图片数 -->
+                <StackPanel Grid.Column="2" Margin="0,0,20,0">
+                    <TextBlock Text="总图片数" FontSize="12" Foreground="Gray"/>
+                    <TextBlock Text="{Binding TotalImages}" 
+                               FontSize="24" 
+                               FontWeight="Bold"
+                               Foreground="#FF9800"/>
+                </StackPanel>
+
+                <!-- 总收藏数 -->
+                <StackPanel Grid.Column="3" Margin="0,0,20,0">
+                    <TextBlock Text="总收藏数" FontSize="12" Foreground="Gray"/>
+                    <TextBlock Text="{Binding TotalFavourites}" 
+                               FontSize="24" 
+                               FontWeight="Bold"
+                               Foreground="#E91E63"/>
+                </StackPanel>
+
+                <!-- 刷新按钮 -->
+                <Button Grid.Column="4"
+                        Command="{Binding LoadStatisticsCommand}"
+                        Style="{StaticResource MaterialDesignIconForegroundButton}"
+                        ToolTip="刷新统计信息"
+                        VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="Refresh" Width="24" Height="24"/>
+                </Button>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- 用户管理区域 -->
+        <TabControl Grid.Row="2" Style="{StaticResource MaterialDesignNavigationRailTabControl}">
+            <!-- 用户管理标签页 -->
+            <TabItem Header="用户管理">
+                <TabItem.HeaderTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <materialDesign:PackIcon Kind="AccountGroup" Width="24" Height="24" HorizontalAlignment="Center"/>
+                            <TextBlock Text="用户管理" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </TabItem.HeaderTemplate>
+
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 操作按钮 -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button Command="{Binding LoadUsersCommand}"
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                materialDesign:ButtonAssist.CornerRadius="4"
+                                Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Refresh" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock Text="刷新用户列表" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- 用户列表 -->
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding Users}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              materialDesign:DataGridAssist.CellPadding="13 8 8 8"
+                              materialDesign:DataGridAssist.ColumnHeaderPadding="8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                            <DataGridTextColumn Header="用户名" Binding="{Binding UserName}" Width="*"/>
+                            <DataGridTextColumn Header="角色" Binding="{Binding Role}" Width="100"/>
+                            
+                            <DataGridTemplateColumn Header="操作" Width="300">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <!-- 切换角色按钮 -->
+                                            <Button Command="{Binding DataContext.ToggleUserRoleCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                    materialDesign:ButtonAssist.CornerRadius="4"
+                                                    Padding="8,4"
+                                                    Margin="0,0,5,0"
+                                                    ToolTip="切换用户角色">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="AccountSwitch" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                    <TextBlock Text="{Binding Role, StringFormat='切换为 {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <!-- 重置密码按钮 -->
+                                            <Button Command="{Binding DataContext.ResetPasswordCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                    materialDesign:ButtonAssist.CornerRadius="4"
+                                                    Padding="8,4"
+                                                    Margin="0,0,5,0"
+                                                    ToolTip="重置密码为 123456">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="LockReset" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                    <TextBlock Text="重置密码" VerticalAlignment="Center" FontSize="11"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <!-- 删除用户按钮 -->
+                                            <Button Command="{Binding DataContext.DeleteUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                    materialDesign:ButtonAssist.CornerRadius="4"
+                                                    Padding="8,4"
+                                                    Foreground="Red"
+                                                    BorderBrush="Red"
+                                                    ToolTip="删除用户及其所有数据">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="Delete" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                    <TextBlock Text="删除" VerticalAlignment="Center" FontSize="11"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- 分页控件 -->
+                    <materialDesign:Card Grid.Row="2" Padding="15" Margin="0,10,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0"
+                                    Command="{Binding GoToPreviousPageCommand}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    materialDesign:ButtonAssist.CornerRadius="4"
+                                    Padding="10,5">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="ChevronLeft" VerticalAlignment="Center"/>
+                                    <TextBlock Text="上一页" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+                            <TextBlock Grid.Column="1" 
+                                       Text="{Binding PageInfo}" 
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       FontSize="14"/>
+
+                            <Button Grid.Column="2"
+                                    Command="{Binding GoToNextPageCommand}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    materialDesign:ButtonAssist.CornerRadius="4"
+                                    Padding="10,5">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="下一页" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <materialDesign:PackIcon Kind="ChevronRight" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </materialDesign:Card>
+                </Grid>
+            </TabItem>
+
+            <!-- 图片管理标签页 -->
+            <TabItem Header="图片管理">
+                <TabItem.HeaderTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <materialDesign:PackIcon Kind="Image" Width="24" Height="24" HorizontalAlignment="Center"/>
+                            <TextBlock Text="图片管理" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </TabItem.HeaderTemplate>
+
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="0"
+                            Command="{Binding LoadAllImagesCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            materialDesign:ButtonAssist.CornerRadius="4"
+                            Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Refresh" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBlock Text="加载所有图片" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <TextBlock Grid.Row="1" 
+                               Text="图片管理功能开发中..." 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center"
+                               FontSize="16"
+                               Foreground="Gray"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- 状态栏 -->
+        <materialDesign:Card Grid.Row="3" Padding="15" Margin="0,10,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <materialDesign:PackIcon Grid.Column="0" 
+                                         Kind="Information" 
+                                         VerticalAlignment="Center" 
+                                         Margin="0,0,10,0"
+                                         Foreground="{StaticResource MaterialDesign.Brush.Primary}"/>
+                <TextBlock Grid.Column="1" 
+                           Text="{Binding StatusMessage}" 
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"/>
+            </Grid>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>

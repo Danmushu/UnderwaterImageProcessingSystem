@@ -54,6 +54,15 @@ public partial class App : Application
                             ServerCertificateCustomValidationCallback = (m, c, ch, e) => true
                         }); // 再处理 SSL
 
+                // 注册 Admin API 需要 Token + SSL 忽略
+                services.AddRefitClient<IAdminApi>()
+                        .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiUrl))
+                        .AddHttpMessageHandler<AuthHeaderHandler>() // 先注入 Token
+                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                        {
+                            ServerCertificateCustomValidationCallback = (m, c, ch, e) => true
+                        }); // 再处理 SSL
+
                 // UI 注册 ViewModel & View
 
                 // 登录模块
@@ -63,6 +72,11 @@ public partial class App : Application
                 // 主界面模块
                 services.AddSingleton<DashboardViewModel>();
                 services.AddSingleton<Views.DashboardView>();
+                
+                // 管理员模块
+                services.AddSingleton<AdminViewModel>();
+                services.AddSingleton<Views.AdminView>();
+                
                 services.AddSingleton<MainWindow>();
 
             })

@@ -23,10 +23,12 @@
                     <TextBlock Text="UIPS" FontSize="30" FontWeight="Bold" Margin="15,0,0,0" VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}"
+                <RadioButton x:Name="DashboardTab"
+                             Style="{StaticResource MaterialDesignTabRadioButton}"
                              Margin="0,5" Padding="10" IsChecked="True"
                              Foreground="{StaticResource PrimaryTextBrush}"
-                             BorderBrush="{StaticResource PrimaryBrush}">
+                             BorderBrush="{StaticResource PrimaryBrush}"
+                             Checked="DashboardTab_Checked">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="ViewDashboard" Margin="0,0,10,0"/>
                         <TextBlock Text="仪表盘 (Dashboard)"/>
@@ -43,6 +45,20 @@
                     </StackPanel>
                 </RadioButton>
 
+                <!-- 管理员面板 (仅管理员可见) -->
+                <RadioButton x:Name="AdminTab"
+                             Style="{StaticResource MaterialDesignTabRadioButton}"
+                             Margin="0,5" Padding="10"
+                             Foreground="{StaticResource PrimaryTextBrush}"
+                             BorderBrush="{StaticResource PrimaryBrush}"
+                             Visibility="Collapsed"
+                             Checked="AdminTab_Checked">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ShieldAccount" Margin="0,0,10,0"/>
+                        <TextBlock Text="管理员面板 (Admin)"/>
+                    </StackPanel>
+                </RadioButton>
+
             </StackPanel>
         </Border>
 
@@ -54,7 +70,7 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <materialDesign:PackIcon Kind="AccountCircle" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                <TextBlock Text="欢迎回来, 管理员" VerticalAlignment="Center" FontSize="16"/>
+                <TextBlock x:Name="WelcomeText" Text="欢迎回来" VerticalAlignment="Center" FontSize="16"/>
             </StackPanel>
 
             <ContentControl x:Name="ContentArea" 

@@ -30,6 +30,32 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
     [ObservableProperty]
     private string? _selectedFileName;
 
+    // ===== 分页相关属性 =====
+    [ObservableProperty]
+    private int _currentPage = 1;
+
+    [ObservableProperty]
+    private int _pageSize = 12;
+
+    [ObservableProperty]
+    private int _totalCount = 0;
+
+    [ObservableProperty]
+    private int _totalPages = 0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoPrevious))]
+    private bool _hasPreviousPage = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    private bool _hasNextPage = false;
+
+    public bool CanGoPrevious => HasPreviousPage;
+    public bool CanGoNext => HasNextPage;
+
+    public string PageInfo => $"第 {CurrentPage} / {TotalPages} 页 (共 {TotalCount} 张图片)";
+
     public bool IsAdmin => userSession.IsAdmin;
 
     /// <summary>
@@ -167,7 +193,7 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
     {
         try
         {
-            var result = await imageApi.GetImages(1, 50);
+            var result = await imageApi.GetImages(CurrentPage, PageSize);
 
             Images.Clear();
             var baseUrl = "https://localhost:7149";
@@ -175,6 +201,17 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
 
             var jsonRoot = (JsonElement)result;
 
+            // 解析分页信息
+            if (jsonRoot.TryGetProperty("totalCount", out var totalCountElement))
+            {
+                TotalCount = totalCountElement.GetInt32();
+                TotalPages = (int)Math.Ceiling((double)TotalCount / PageSize);
+                HasPreviousPage = CurrentPage > 1;
+                HasNextPage = CurrentPage < TotalPages;
+                OnPropertyChanged(nameof(PageInfo));
+            }
+
+            // 解析图片列表
             if (jsonRoot.TryGetProperty("items", out JsonElement itemsElement) && itemsElement.ValueKind == JsonValueKind.Array)
             {
                 foreach (var itemJson in itemsElement.EnumerateArray())
@@ -191,10 +228,52 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
                     Images.Add(img);
                 }
             }
+
+            UploadStatus = $"已加载第 {CurrentPage} 页，共 {Images.Count} 张图片";
         }
         catch (Exception ex)
         {
+            UploadStatus = $"加载失败: {ex.Message}";
             System.Diagnostics.Debug.WriteLine(ex);
+        }
+    }
+
+    /// <summary>
+    /// 上一页
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanGoPrevious))]
+    private async Task GoToPreviousPageAsync()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage--;
+            await LoadImagesAsync();
+        }
+    }
+
+    /// <summary>
+    /// 下一页
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanGoNext))]
+    private async Task GoToNextPageAsync()
+    {
+        if (CurrentPage < TotalPages)
+        {
+            CurrentPage++;
+            await LoadImagesAsync();
+        }
+    }
+
+    /// <summary>
+    /// 跳转到指定页
+    /// </summary>
+    [RelayCommand]
+    private async Task GoToPageAsync(int pageNumber)
+    {
+        if (pageNumber >= 1 && pageNumber <= TotalPages)
+        {
+            CurrentPage = pageNumber;
+            await LoadImagesAsync();
         }
     }
 

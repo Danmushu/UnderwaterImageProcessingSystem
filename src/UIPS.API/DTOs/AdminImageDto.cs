@@ -1,10 +1,10 @@
-﻿namespace UIPS.API.DTOs;
+namespace UIPS.API.DTOs;
 
 /// <summary>
-/// 图片上传响应 DTO
-/// 上传成功后返回给前端的图片元数据
+/// 管理员视图的图片信息 DTO
+/// 包含所有者信息
 /// </summary>
-public class ImageResponseDto
+public class AdminImageDto
 {
     /// <summary>
     /// 图片 ID
@@ -17,7 +17,7 @@ public class ImageResponseDto
     public required string OriginalFileName { get; set; }
 
     /// <summary>
-    /// 上传时间（UTC）
+    /// 上传时间
     /// </summary>
     public DateTime UploadedAt { get; set; }
 
@@ -27,7 +27,17 @@ public class ImageResponseDto
     public long FileSize { get; set; }
 
     /// <summary>
-    /// 图片访问 URL（前端可直接使用此 URL 显示图片）
+    /// 所有者用户名
     /// </summary>
-    public required string Url { get; set; }
+    public required string OwnerName { get; set; }
+
+    /// <summary>
+    /// 所有者 ID
+    /// </summary>
+    public int OwnerId { get; set; }
+
+    /// <summary>
+    /// 预览 URL
+    /// </summary>
+    public required string PreviewUrl { get; set; }
 }
