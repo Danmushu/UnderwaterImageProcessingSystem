@@ -12,9 +12,6 @@ namespace UIPS.Client.ViewModels;
 public partial class DashboardViewModel(IImageApi imageApi, UserSession userSession) : ObservableObject
 {
     [ObservableProperty]
-    private string? _selectedFilePath;
-
-    [ObservableProperty]
     private string _uploadStatus = "请选择图片文件上传...";
 
     [ObservableProperty]
@@ -23,7 +20,7 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
     [ObservableProperty]
     private ObservableCollection<dynamic> _images = new();
 
-    // ===== 新增属性 =====
+    // ===== 文件名分组属性 =====
     [ObservableProperty]
     private ObservableCollection<string> _fileNameGroups = new();
 
@@ -72,12 +69,23 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
         : "暂无图片";
 
     /// <summary>
-    /// 单文件上传命令
+    /// 上传单张图片（带文件选择对话框）
     /// </summary>
     [RelayCommand]
-    private async Task UploadFileAsync()
+    private async Task UploadSingleFileAsync()
     {
-        if (string.IsNullOrEmpty(SelectedFilePath) || IsUploading)
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Multiselect = false,
+            Filter = "图片文件|*.jpg;*.jpeg;*.png;*.bmp|所有文件|*.*",
+            Title = "选择要上传的图片"
+        };
+
+        if (dialog.ShowDialog() != true)
+            return;
+
+        var filePath = dialog.FileName;
+        if (string.IsNullOrEmpty(filePath))
             return;
 
         IsUploading = true;
@@ -85,9 +93,9 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
 
         try
         {
-            using var stream = File.OpenRead(SelectedFilePath);
-            var fileName = Path.GetFileName(SelectedFilePath);
-            var extension = Path.GetExtension(SelectedFilePath).ToLower();
+            using var stream = File.OpenRead(filePath);
+            var fileName = Path.GetFileName(filePath);
+            var extension = Path.GetExtension(filePath).ToLower();
 
             string contentType = extension switch
             {
@@ -105,9 +113,10 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
             var serverFileName = GetJsonString(json, "originalFileName");
 
             UploadStatus = $"上传成功! ID: {id}, 文件名: {serverFileName}";
-            SelectedFilePath = null;
 
+            // 刷新文件名列表和图片列表
             await LoadFileNameGroupsAsync();
+            await LoadImagesAsync();
         }
         catch (ApiException ex)
         {
@@ -181,8 +190,9 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
 
             UploadStatus = $"成功上传 {files.Count} 个文件！";
 
-            // 刷新文件名列表
+            // 刷新文件名列表和图片列表
             await LoadFileNameGroupsAsync();
+            await LoadImagesAsync();
         }
         catch (ApiException ex)
         {

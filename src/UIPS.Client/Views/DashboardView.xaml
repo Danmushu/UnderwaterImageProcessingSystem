@@ -37,45 +37,31 @@
                                    Style="{StaticResource MaterialDesignSubtitle1TextBlock}" 
                                    Margin="0,0,0,12"/>
 
-                        <!-- 单文件上传 -->
-                        <Grid Margin="0,0,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBox Grid.Column="0"
-                                     materialDesign:HintAssist.Hint="选择的文件路径"
-                                     Text="{Binding SelectedFilePath, Mode=OneWay}"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                     Margin="0,0,8,0"
-                                     FontSize="12"/>
-
-                            <Button Grid.Column="1"
-                                    Content="浏览"
-                                    Click="BrowseButton_Click" 
-                                    Style="{StaticResource MaterialDesignOutlinedButton}"
-                                    materialDesign:ButtonAssist.CornerRadius="4"
-                                    Padding="12,6"/>
-                        </Grid>
-
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,8">
-                            <Button Content="上传"
-                                    Command="{Binding UploadFileCommand}"
-                                    IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}, ConverterParameter=false}"
-                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                            <Button Command="{Binding UploadSingleFileCommand}"
+                                    IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}}"
+                                    Style="{StaticResource MaterialDesignRaisedButton}"
                                     materialDesign:ButtonAssist.CornerRadius="4"
-                                    Padding="16,6"
-                                    Margin="0,0,8,0"/>
+                                    Padding="16,8"
+                                    Margin="0,0,10,0"
+                                    ToolTip="选择单个文件上传">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Image" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="上传单张" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
 
-                            <Button Content="批量上传"
-                                    Command="{Binding UploadMultipleFilesCommand}"
-                                    IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}, ConverterParameter=false}"
+                            <Button Command="{Binding UploadMultipleFilesCommand}"
+                                    IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}}"
                                     Style="{StaticResource MaterialDesignOutlinedButton}"
                                     materialDesign:ButtonAssist.CornerRadius="4"
-                                    Padding="16,6"
-                                    ToolTip="选择多个文件同时上传"/>
+                                    Padding="16,8"
+                                    ToolTip="选择多个文件同时上传">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="ImageMultiple" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="批量上传" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
 
                         <ProgressBar Style="{StaticResource MaterialDesignLinearProgressBar}"
