@@ -71,8 +71,6 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
         ? $"第 {CurrentPage}/{TotalPages} 页 · 共 {TotalCount} 张" 
         : "暂无图片";
 
-    public bool IsAdmin => userSession.IsAdmin;
-
     /// <summary>
     /// 单文件上传命令
     /// </summary>
@@ -376,23 +374,26 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
     }
 
     /// <summary>
-    /// 删除图片命令
+    /// 删除图片命令（用户可以删除自己的图片）
     /// </summary>
     [RelayCommand]
     private async Task DeleteImageAsync(dynamic? image)
     {
-        if (!IsAdmin)
-        {
-            UploadStatus = "权限不足：只有管理员可以删除图片。";
-            return;
-        }
         if (image == null) return;
 
         try
         {
             await imageApi.DeleteImage(image.Id);
             Images.Remove(image);
+            TotalCount--;
             UploadStatus = $"图片 '{image.OriginalFileName}' 已成功删除。";
+            
+            // 如果当前页没有图片了，且不是第一页，则跳转到上一页
+            if (Images.Count == 0 && CurrentPage > 1)
+            {
+                CurrentPage--;
+                await LoadImagesAsync();
+            }
         }
         catch (Exception ex)
         {

@@ -37,6 +37,17 @@ public partial class LoginViewModel : ObservableObject
     [ObservableProperty]
     private string _confirmPassword = string.Empty;
 
+    // 是否显示密码（明文）
+    [ObservableProperty]
+    private bool _showPassword = false;
+
+    // 切换密码显示命令
+    [RelayCommand]
+    private void TogglePasswordVisibility()
+    {
+        ShowPassword = !ShowPassword;
+    }
+
     // 当前是否为注册模式 默认 False = 登录
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ActionTitle))]

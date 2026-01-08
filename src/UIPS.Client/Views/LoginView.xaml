@@ -28,18 +28,74 @@
                          Foreground="{StaticResource PrimaryTextBrush}"
                          Margin="0,10"/>
 
-                <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
-                         materialDesign:HintAssist.Hint="Password"
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                         Foreground="{StaticResource PrimaryTextBrush}"
-                         Margin="0,10"/>
+                <!-- 密码输入区域（带显示/隐藏切换） -->
+                <Grid Margin="0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- 密码框（隐藏模式） -->
+                    <PasswordBox x:Name="PasswordBox"
+                                 materialDesign:HintAssist.Hint="Password"
+                                 Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"
+                                 Foreground="{StaticResource PrimaryTextBrush}"
+                                 PasswordChanged="PasswordBox_PasswordChanged"
+                                 Visibility="{Binding ShowPassword, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    
+                    <!-- 密码框（明文模式） -->
+                    <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="Password"
+                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                             Foreground="{StaticResource PrimaryTextBrush}"
+                             Visibility="{Binding ShowPassword, Converter={StaticResource BoolToVis}}"/>
+                    
+                    <!-- 显示/隐藏切换按钮 -->
+                    <Button Grid.Column="1" 
+                            Command="{Binding TogglePasswordVisibilityCommand}"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            VerticalAlignment="Bottom"
+                            Width="30" Height="30" Padding="0">
+                        <materialDesign:PackIcon Width="20" Height="20">
+                            <materialDesign:PackIcon.Style>
+                                <Style TargetType="materialDesign:PackIcon">
+                                    <Setter Property="Kind" Value="Eye"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ShowPassword}" Value="True">
+                                            <Setter Property="Kind" Value="EyeOff"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
+                    </Button>
+                </Grid>
 
-                <TextBox Text="{Binding ConfirmPassword, UpdateSourceTrigger=PropertyChanged}"
-                         Visibility="{Binding IsRegisterMode, Converter={StaticResource BoolToVis}}"
-                         materialDesign:HintAssist.Hint="Confirm Password"
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                         Foreground="{StaticResource PrimaryTextBrush}"
-                         Margin="0,10,0,20"/>
+                <!-- 确认密码区域（注册模式，带显示/隐藏切换） -->
+                <Grid Margin="0,10,0,20" Visibility="{Binding IsRegisterMode, Converter={StaticResource BoolToVis}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- 确认密码框（隐藏模式） -->
+                    <PasswordBox x:Name="ConfirmPasswordBox"
+                                 materialDesign:HintAssist.Hint="Confirm Password"
+                                 Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"
+                                 Foreground="{StaticResource PrimaryTextBrush}"
+                                 PasswordChanged="ConfirmPasswordBox_PasswordChanged"
+                                 Visibility="{Binding ShowPassword, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    
+                    <!-- 确认密码框（明文模式） -->
+                    <TextBox Text="{Binding ConfirmPassword, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="Confirm Password"
+                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                             Foreground="{StaticResource PrimaryTextBrush}"
+                             Visibility="{Binding ShowPassword, Converter={StaticResource BoolToVis}}"/>
+                    
+                    <!-- 占位，保持对齐 -->
+                    <Border Grid.Column="1" Width="30"/>
+                </Grid>
 
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{StaticResource ErrorBrush}"
