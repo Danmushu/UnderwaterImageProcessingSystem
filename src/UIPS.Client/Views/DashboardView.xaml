@@ -26,19 +26,19 @@
             <!-- 上传区域 -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="400"/>
+                    <ColumnDefinition Width="350"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- 左侧：上传卡片 -->
-                <materialDesign:Card Grid.Column="0" VerticalAlignment="Top" Padding="25" Margin="0,0,20,20">
+                <materialDesign:Card Grid.Column="0" VerticalAlignment="Top" Padding="20" Margin="0,0,15,15">
                     <StackPanel>
                         <TextBlock Text="文件上传" 
                                    Style="{StaticResource MaterialDesignSubtitle1TextBlock}" 
-                                   Margin="0,0,0,15"/>
+                                   Margin="0,0,0,12"/>
 
                         <!-- 单文件上传 -->
-                        <Grid Margin="0,0,0,10">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -49,73 +49,87 @@
                                      Text="{Binding SelectedFilePath, Mode=OneWay}"
                                      IsReadOnly="True"
                                      Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                     Margin="0,0,8,0"/>
+                                     Margin="0,0,8,0"
+                                     FontSize="12"/>
 
                             <Button Grid.Column="1"
                                     Content="浏览"
                                     Click="BrowseButton_Click" 
                                     Style="{StaticResource MaterialDesignOutlinedButton}"
-                                    materialDesign:ButtonAssist.CornerRadius="4"/>
+                                    materialDesign:ButtonAssist.CornerRadius="4"
+                                    Padding="12,6"/>
                         </Grid>
 
-                        <Button Content="上传单个文件"
-                                Command="{Binding UploadFileCommand}"
-                                IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}, ConverterParameter=false}"
-                                Margin="0,10,0,10"
-                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                materialDesign:ButtonAssist.CornerRadius="4"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,8">
+                            <Button Content="上传"
+                                    Command="{Binding UploadFileCommand}"
+                                    IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}, ConverterParameter=false}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    materialDesign:ButtonAssist.CornerRadius="4"
+                                    Padding="16,6"
+                                    Margin="0,0,8,0"/>
 
-                        <!-- 批量上传按钮 -->
-                        <Button Content="批量上传"
-                                Command="{Binding UploadMultipleFilesCommand}"
-                                IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}, ConverterParameter=false}"
-                                Margin="0,0,0,10"
-                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                materialDesign:ButtonAssist.CornerRadius="4"
-                                ToolTip="选择多个文件同时上传"/>
+                            <Button Content="批量上传"
+                                    Command="{Binding UploadMultipleFilesCommand}"
+                                    IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}, ConverterParameter=false}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    materialDesign:ButtonAssist.CornerRadius="4"
+                                    Padding="16,6"
+                                    ToolTip="选择多个文件同时上传"/>
+                        </StackPanel>
 
                         <ProgressBar Style="{StaticResource MaterialDesignLinearProgressBar}"
                                      IsIndeterminate="{Binding IsUploading}"
-                                     Height="10"
+                                     Height="6"
                                      Visibility="{Binding IsUploading, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                     Margin="0,5,0,5"/>
+                                     Margin="0,4,0,4"/>
 
                         <TextBlock Text="{Binding UploadStatus}"
                                    Foreground="{StaticResource MaterialDesignBody}"
-                                   Opacity="0.7" TextWrapping="Wrap" MinHeight="30"/>
+                                   Opacity="0.7" TextWrapping="Wrap" 
+                                   FontSize="12"
+                                   MinHeight="20"/>
                     </StackPanel>
                 </materialDesign:Card>
 
                 <!-- 右侧：文件名筛选卡片 -->
-                <materialDesign:Card Grid.Column="1" VerticalAlignment="Top" Padding="25" Margin="0,0,0,20">
-                    <StackPanel>
-                        <TextBlock Text="按文件名筛选" 
-                                   Style="{StaticResource MaterialDesignSubtitle1TextBlock}" 
-                                   Margin="0,0,0,15"/>
+                <materialDesign:Card Grid.Column="1" VerticalAlignment="Top" Padding="20" Margin="0,0,0,15">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                        <Button Content="加载文件名列表"
+                        <Button Grid.Column="0"
+                                Content="加载文件名"
                                 Command="{Binding LoadFileNameGroupsCommand}"
                                 Style="{StaticResource MaterialDesignOutlinedButton}"
                                 materialDesign:ButtonAssist.CornerRadius="4"
-                                Margin="0,0,0,10"/>
+                                Padding="12,6"
+                                Margin="0,0,12,0"/>
 
-                        <TextBlock Text="{Binding FileNameGroups.Count, StringFormat='共 {0} 个不同的文件名'}"
-                                   Margin="0,0,0,10"
-                                   Foreground="Gray"
-                                   FontSize="12"/>
-
-                        <ComboBox ItemsSource="{Binding FileNameGroups}"
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding FileNameGroups}"
                                   SelectedItem="{Binding SelectedFileName}"
-                                  materialDesign:HintAssist.Hint="选择文件名查看该组图片"
+                                  materialDesign:HintAssist.Hint="选择文件名筛选"
                                   Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                  SelectionChanged="FileNameComboBox_SelectionChanged">
+                                  SelectionChanged="FileNameComboBox_SelectionChanged"
+                                  FontSize="13">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding}" Margin="5"/>
+                                    <TextBlock Text="{Binding}" Margin="4"/>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
-                    </StackPanel>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding FileNameGroups.Count, StringFormat='共 {0} 个'}"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0"
+                                   Foreground="Gray"
+                                   FontSize="12"/>
+                    </Grid>
                 </materialDesign:Card>
             </Grid>
 
@@ -147,7 +161,10 @@
                 <ListBox Grid.Row="1" 
                          ItemsSource="{Binding Images}"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         HorizontalContentAlignment="Stretch">
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         HorizontalContentAlignment="Stretch"
+                         Background="Transparent"
+                         BorderThickness="0">
 
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -155,69 +172,88 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
 
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <materialDesign:Card Margin="5" Width="160" Height="200" UniformCornerRadius="6" Cursor="Hand">
+                            <materialDesign:Card Margin="8" Width="220" Height="260" UniformCornerRadius="8" Cursor="Hand"
+                                                 materialDesign:ElevationAssist.Elevation="Dp2">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="150"/>
+                                        <RowDefinition Height="200"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
 
-                                    <Grid Grid.Row="0">
-                                        <!-- 图片可点击预览 -->
+                                    <!-- 图片区域 -->
+                                    <Border Grid.Row="0" ClipToBounds="True" CornerRadius="8,8,0,0">
+                                        <!-- 背景图片，填满整个区域 -->
+                                        <Border.Background>
+                                            <ImageBrush ImageSource="{Binding PreviewUrl}" 
+                                                        Stretch="UniformToFill"
+                                                        RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        </Border.Background>
+                                        
+                                        <!-- 可点击的透明按钮覆盖层 -->
                                         <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                Background="Transparent"
                                                 Padding="0" Margin="0"
-                                                HorizontalContentAlignment="Stretch"
-                                                VerticalContentAlignment="Stretch"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
                                                 Command="{Binding DataContext.PreviewImageCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                CommandParameter="{Binding}">
-                                            <Image Source="{Binding PreviewUrl}" 
-                                                   Stretch="UniformToFill"
-                                                   RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        </Button>
+                                                CommandParameter="{Binding}"/>
+                                    </Border>
 
-                                        <ToggleButton 
-                                            Style="{StaticResource MaterialDesignActionToggleButton}" 
-                                            Width="32" Height="32" 
-                                            HorizontalAlignment="Left" VerticalAlignment="Top" 
-                                            Margin="5" 
-                                            IsChecked="{Binding IsSelected, Mode=OneWay}" 
-                                            Command="{Binding DataContext.ToggleSelectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
-                                            CommandParameter="{Binding}"> 
-                                            <ToggleButton.Content> 
-                                                <materialDesign:PackIcon Kind="HeartOutline" Foreground="White" Width="20" Height="20"/> 
-                                            </ToggleButton.Content> 
-                                            <materialDesign:ToggleButtonAssist.OnContent> 
-                                                <materialDesign:PackIcon Kind="Heart" Foreground="Red" Width="20" Height="20"/> 
-                                            </materialDesign:ToggleButtonAssist.OnContent> 
-                                        </ToggleButton> 
+                                    <!-- 收藏按钮 -->
+                                    <ToggleButton Grid.Row="0"
+                                        Style="{StaticResource MaterialDesignActionToggleButton}" 
+                                        Width="36" Height="36" 
+                                        HorizontalAlignment="Left" VerticalAlignment="Top" 
+                                        Margin="8" 
+                                        IsChecked="{Binding IsSelected, Mode=OneWay}" 
+                                        Command="{Binding DataContext.ToggleSelectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                        CommandParameter="{Binding}"> 
+                                        <ToggleButton.Content> 
+                                            <materialDesign:PackIcon Kind="HeartOutline" Foreground="White" Width="22" Height="22"/> 
+                                        </ToggleButton.Content> 
+                                        <materialDesign:ToggleButtonAssist.OnContent> 
+                                            <materialDesign:PackIcon Kind="Heart" Foreground="Red" Width="22" Height="22"/> 
+                                        </materialDesign:ToggleButtonAssist.OnContent> 
+                                    </ToggleButton>
 
-                                        <Button Style="{StaticResource MaterialDesignIconForegroundButton}"
-                                            Width="30" Height="30"
-                                            HorizontalAlignment="Right" 
-                                            VerticalAlignment="Top"
-                                            Margin="5"
-                                            Background="#99000000" 
-                                            BorderBrush="Transparent"
-                                            Foreground="White"
-                                            ToolTip="删除图片 (仅管理员)"
-                                            Cursor="Hand"
-                                            Visibility="{Binding DataContext.IsAdmin, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource InverseBooleanConverter}}"
-                                            Command="{Binding DataContext.DeleteImageCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                            CommandParameter="{Binding}">
-                                            <materialDesign:PackIcon Kind="Delete" Width="18" Height="18"/>
-                                        </Button>
-                                    </Grid>
+                                    <!-- 删除按钮 -->
+                                    <Button Grid.Row="0"
+                                        Style="{StaticResource MaterialDesignIconForegroundButton}"
+                                        Width="34" Height="34"
+                                        HorizontalAlignment="Right" 
+                                        VerticalAlignment="Top"
+                                        Margin="8"
+                                        Background="#99000000" 
+                                        BorderBrush="Transparent"
+                                        Foreground="White"
+                                        ToolTip="删除图片 (仅管理员)"
+                                        Cursor="Hand"
+                                        Visibility="{Binding DataContext.IsAdmin, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource InverseBooleanConverter}}"
+                                        Command="{Binding DataContext.DeleteImageCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                        CommandParameter="{Binding}">
+                                        <materialDesign:PackIcon Kind="Delete" Width="20" Height="20"/>
+                                    </Button>
 
-                                    <TextBlock Grid.Row="1" 
-                                               Text="{Binding OriginalFileName}" 
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis"
-                                               ToolTip="{Binding OriginalFileName}"
-                                               FontSize="12"
-                                               Padding="5"/>
+                                    <!-- 文件名 -->
+                                    <Border Grid.Row="1" Background="{StaticResource MaterialDesignCardBackground}">
+                                        <TextBlock Text="{Binding OriginalFileName}" 
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding OriginalFileName}"
+                                                   FontSize="13"
+                                                   Padding="8,0"/>
+                                    </Border>
                                 </Grid>
                             </materialDesign:Card>
                         </DataTemplate>
