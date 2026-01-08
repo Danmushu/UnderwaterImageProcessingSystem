@@ -19,12 +19,12 @@ public class ImageController(UipsDbContext context, IFileService fileService) : 
     #region 上传相关接口
 
     /// <summary>
-    /// 上传单张图片
+    /// 上传单张图片（创建图片资源）
     /// </summary>
     /// <param name="file">上传的图片文件</param>
     /// <returns>上传成功后的图片元数据</returns>
-    [HttpPost("upload")]
-    [ProducesResponseType(typeof(ImageResponseDto), 200)]
+    [HttpPost]
+    [ProducesResponseType(typeof(ImageResponseDto), 201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
     public async Task<IActionResult> UploadImage(IFormFile file)
@@ -65,12 +65,12 @@ public class ImageController(UipsDbContext context, IFileService fileService) : 
     }
 
     /// <summary>
-    /// 批量上传图片
+    /// 批量上传图片（批量创建图片资源）
     /// </summary>
     /// <param name="files">上传的图片文件列表</param>
     /// <returns>所有上传成功的图片元数据列表</returns>
-    [HttpPost("upload/batch")]
-    [ProducesResponseType(typeof(List<ImageResponseDto>), 200)]
+    [HttpPost("batch")]
+    [ProducesResponseType(typeof(List<ImageResponseDto>), 201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
     public async Task<IActionResult> UploadBatch([FromForm] List<IFormFile> files)
@@ -249,12 +249,12 @@ public class ImageController(UipsDbContext context, IFileService fileService) : 
     #region 文件访问接口
 
     /// <summary>
-    /// 查看图片文件（返回文件流）
+    /// 获取图片预览（返回文件流）
     /// 此接口允许匿名访问，用于公开展示图片
     /// </summary>
     /// <param name="id">图片 ID</param>
     /// <returns>图片文件流</returns>
-    [HttpGet("view/{id}")]
+    [HttpGet("{id}/preview")]
     [AllowAnonymous] // 允许匿名访问
     [ProducesResponseType(200, Type = typeof(FileStreamResult))]
     [ProducesResponseType(404)]
@@ -377,11 +377,11 @@ public class ImageController(UipsDbContext context, IFileService fileService) : 
     }
 
     /// <summary>
-    /// 切换图片的选中状态（收藏/取消收藏）
+    /// 切换图片的收藏状态（收藏/取消收藏）
     /// </summary>
     /// <param name="id">图片 ID</param>
-    /// <returns>切换后的选中状态</returns>
-    [HttpPost("{id}/select")]
+    /// <returns>切换后的收藏状态</returns>
+    [HttpPut("{id}/favourite")]
     [ProducesResponseType(200)]
     [ProducesResponseType(401)]
     [ProducesResponseType(404)]
@@ -485,7 +485,7 @@ public class ImageController(UipsDbContext context, IFileService fileService) : 
             OriginalFileName = image.OriginalFileName,
             UploadedAt = image.UploadedAt,
             FileSize = image.FileSize,
-            Url = $"/api/images/view/{image.Id}"
+            Url = $"/api/images/{image.Id}/preview"
         };
     }
 

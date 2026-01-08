@@ -146,7 +146,7 @@ public class AdminController(UipsDbContext context) : ControllerBase
     /// <summary>
     /// 重置用户密码（管理员功能）
     /// </summary>
-    [HttpPost("users/{userId}/reset-password")]
+    [HttpPut("users/{userId}/password")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> ResetUserPassword(int userId, [FromBody] ResetPasswordDto dto)
@@ -206,7 +206,7 @@ public class AdminController(UipsDbContext context) : ControllerBase
     /// <summary>
     /// 批量删除图片
     /// </summary>
-    [HttpPost("images/batch-delete")]
+    [HttpDelete("images/batch")]
     [ProducesResponseType(200)]
     public async Task<IActionResult> BatchDeleteImages([FromBody] BatchDeleteDto dto)
     {

@@ -18,12 +18,12 @@ namespace UIPS.API.Controllers;
 public class AuthController(UipsDbContext context, IConfiguration configuration) : ControllerBase
 {
     /// <summary>
-    /// 用户注册接口
+    /// 用户注册接口（创建用户资源）
     /// </summary>
     /// <param name="request">包含用户名和密码的注册请求</param>
     /// <returns>注册成功或失败的响应</returns>
-    [HttpPost("register")]
-    [ProducesResponseType(200)]
+    [HttpPost("users")]
+    [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> Register(LoginRequestDto request)
     {
@@ -50,11 +50,11 @@ public class AuthController(UipsDbContext context, IConfiguration configuration)
     }
 
     /// <summary>
-    /// 用户登录接口
+    /// 用户登录接口（创建认证令牌）
     /// </summary>
     /// <param name="request">包含用户名和密码的登录请求</param>
     /// <returns>包含 JWT Token 和用户信息的登录响应</returns>
-    [HttpPost("login")]
+    [HttpPost("token")]
     [ProducesResponseType(typeof(LoginResponseDto), 200)]
     [ProducesResponseType(401)]
     public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto request)
@@ -77,7 +77,7 @@ public class AuthController(UipsDbContext context, IConfiguration configuration)
         return Ok(new LoginResponseDto
         {
             AccessToken = token,
-            RefreshToken = "待实现...", // TODO: 实现刷新令牌机制
+            RefreshToken = Guid.NewGuid().ToString("N"), // 刷新令牌（当前未实现刷新逻辑）
             UserId = user.Id,
             UserName = user.UserName,
             ExpiresIn = 120 * 60, // Token 有效期（秒）

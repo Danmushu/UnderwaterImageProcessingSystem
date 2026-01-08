@@ -182,7 +182,7 @@
 
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <materialDesign:Card Margin="8" Width="220" Height="260" UniformCornerRadius="8" Cursor="Hand"
+                            <materialDesign:Card Margin="8" Width="220" Height="260" UniformCornerRadius="8"
                                                  materialDesign:ElevationAssist.Elevation="Dp2">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -191,58 +191,59 @@
                                     </Grid.RowDefinitions>
 
                                     <!-- 图片区域 -->
-                                    <Border Grid.Row="0" ClipToBounds="True" CornerRadius="8,8,0,0">
-                                        <!-- 背景图片，填满整个区域 -->
-                                        <Border.Background>
-                                            <ImageBrush ImageSource="{Binding PreviewUrl}" 
-                                                        Stretch="UniformToFill"
-                                                        RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        </Border.Background>
+                                    <Grid Grid.Row="0">
+                                        <!-- 背景图片 -->
+                                        <Border ClipToBounds="True" CornerRadius="8,8,0,0">
+                                            <Border.Background>
+                                                <ImageBrush ImageSource="{Binding PreviewUrl}" 
+                                                            Stretch="UniformToFill"
+                                                            RenderOptions.BitmapScalingMode="HighQuality"/>
+                                            </Border.Background>
+                                        </Border>
                                         
-                                        <!-- 可点击的透明按钮覆盖层 -->
-                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
-                                                Background="Transparent"
-                                                Padding="0" Margin="0"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                Command="{Binding DataContext.PreviewImageCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                CommandParameter="{Binding}"/>
-                                    </Border>
+                                        <!-- 整个图片区域的点击层 -->
+                                        <Border Background="Transparent" Cursor="Hand">
+                                            <Border.InputBindings>
+                                                <MouseBinding MouseAction="LeftClick" 
+                                                              Command="{Binding DataContext.PreviewImageCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                              CommandParameter="{Binding}"/>
+                                            </Border.InputBindings>
+                                        </Border>
 
-                                    <!-- 收藏按钮 -->
-                                    <ToggleButton Grid.Row="0"
-                                        Style="{StaticResource MaterialDesignActionToggleButton}" 
-                                        Width="36" Height="36" 
-                                        HorizontalAlignment="Left" VerticalAlignment="Top" 
-                                        Margin="8" 
-                                        IsChecked="{Binding IsSelected, Mode=OneWay}" 
-                                        Command="{Binding DataContext.ToggleSelectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
-                                        CommandParameter="{Binding}"> 
-                                        <ToggleButton.Content> 
-                                            <materialDesign:PackIcon Kind="HeartOutline" Foreground="White" Width="22" Height="22"/> 
-                                        </ToggleButton.Content> 
-                                        <materialDesign:ToggleButtonAssist.OnContent> 
-                                            <materialDesign:PackIcon Kind="Heart" Foreground="Red" Width="22" Height="22"/> 
-                                        </materialDesign:ToggleButtonAssist.OnContent> 
-                                    </ToggleButton>
+                                        <!-- 收藏按钮 -->
+                                        <ToggleButton 
+                                            Style="{StaticResource MaterialDesignActionToggleButton}" 
+                                            Width="36" Height="36" 
+                                            HorizontalAlignment="Left" VerticalAlignment="Top" 
+                                            Margin="8" 
+                                            IsChecked="{Binding IsSelected, Mode=OneWay}" 
+                                            Command="{Binding DataContext.ToggleSelectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                            CommandParameter="{Binding}"> 
+                                            <ToggleButton.Content> 
+                                                <materialDesign:PackIcon Kind="HeartOutline" Foreground="White" Width="22" Height="22"/> 
+                                            </ToggleButton.Content> 
+                                            <materialDesign:ToggleButtonAssist.OnContent> 
+                                                <materialDesign:PackIcon Kind="Heart" Foreground="Red" Width="22" Height="22"/> 
+                                            </materialDesign:ToggleButtonAssist.OnContent> 
+                                        </ToggleButton>
 
-                                    <!-- 删除按钮 -->
-                                    <Button Grid.Row="0"
-                                        Style="{StaticResource MaterialDesignIconForegroundButton}"
-                                        Width="34" Height="34"
-                                        HorizontalAlignment="Right" 
-                                        VerticalAlignment="Top"
-                                        Margin="8"
-                                        Background="#99000000" 
-                                        BorderBrush="Transparent"
-                                        Foreground="White"
-                                        ToolTip="删除图片 (仅管理员)"
-                                        Cursor="Hand"
-                                        Visibility="{Binding DataContext.IsAdmin, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource InverseBooleanConverter}}"
-                                        Command="{Binding DataContext.DeleteImageCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                        CommandParameter="{Binding}">
-                                        <materialDesign:PackIcon Kind="Delete" Width="20" Height="20"/>
-                                    </Button>
+                                        <!-- 删除按钮 -->
+                                        <Button Style="{StaticResource MaterialDesignIconForegroundButton}"
+                                            Width="34" Height="34"
+                                            HorizontalAlignment="Right" 
+                                            VerticalAlignment="Top"
+                                            Margin="8"
+                                            Background="#99000000" 
+                                            BorderBrush="Transparent"
+                                            Foreground="White"
+                                            ToolTip="删除图片 (仅管理员)"
+                                            Cursor="Hand"
+                                            Visibility="{Binding DataContext.IsAdmin, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource InverseBooleanConverter}}"
+                                            Command="{Binding DataContext.DeleteImageCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                            CommandParameter="{Binding}">
+                                            <materialDesign:PackIcon Kind="Delete" Width="20" Height="20"/>
+                                        </Button>
+                                    </Grid>
 
                                     <!-- 文件名 -->
                                     <Border Grid.Row="1" Background="{StaticResource MaterialDesignCardBackground}">

@@ -61,7 +61,7 @@ public partial class MainWindow : Window
         ContentArea.Content = view;
     }
 
-    private void NavigateToAdmin()
+    private async void NavigateToAdmin()
     {
         // 防止在窗口加载之前访问控件
         if (!_isLoaded || ContentArea == null) return;
@@ -77,6 +77,9 @@ public partial class MainWindow : Window
 
         // 放入主窗口的内容区域
         ContentArea.Content = view;
+
+        // 每次切换到管理员面板时刷新统计信息
+        await viewModel.LoadStatisticsAsync();
     }
 
     private void DashboardTab_Checked(object sender, RoutedEventArgs e)

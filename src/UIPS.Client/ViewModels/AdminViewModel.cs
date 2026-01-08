@@ -192,6 +192,9 @@ public partial class AdminViewModel : ObservableObject
             await _adminApi.DeleteUserAsync(user.Id);
             Users.Remove(user);
             StatusMessage = $"用户 {user.UserName} 已删除";
+            
+            // 刷新统计信息
+            await LoadStatisticsAsync();
         }
         catch (ApiException ex)
         {
