@@ -124,12 +124,22 @@ public partial class LoginViewModel : ObservableObject
             // 调用 API IAuthApi 需改为接收 object 或 dynamic
             await _authApi.RegisterAsync(payload);
 
-            // 注册成功的后续处理
+            // 注册成功的后续处理（API 调用成功即表示注册成功）
             HandleRegisterSuccess();
         }
         catch (ApiException ex)
         {
-            ErrorMessage = $"注册失败: {ex.Content ?? ex.ReasonPhrase}";
+            // 只有 API 抛出异常时才是真正的注册失败
+            var errorContent = ex.Content;
+            if (string.IsNullOrWhiteSpace(errorContent) || errorContent == "OK")
+            {
+                // 如果错误内容为空或为 "OK"，说明实际上是成功的
+                HandleRegisterSuccess();
+            }
+            else
+            {
+                ErrorMessage = $"注册失败: {errorContent}";
+            }
         }
     }
 

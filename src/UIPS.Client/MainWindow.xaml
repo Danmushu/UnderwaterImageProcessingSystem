@@ -24,38 +24,28 @@
                 </StackPanel>
 
                 <RadioButton x:Name="DashboardTab"
-                             Style="{StaticResource MaterialDesignTabRadioButton}"
-                             Margin="0,5" Padding="10" IsChecked="True"
+                             Style="{StaticResource MaterialDesignTabRadioButtonVertical}"
+                             Margin="0,5" Padding="15,12" IsChecked="True"
                              Foreground="{StaticResource PrimaryTextBrush}"
-                             BorderBrush="{StaticResource PrimaryBrush}"
+                             Background="Transparent"
                              Checked="DashboardTab_Checked">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="ViewDashboard" Margin="0,0,10,0"/>
-                        <TextBlock Text="仪表盘 (Dashboard)"/>
-                    </StackPanel>
-                </RadioButton>
-
-                <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}"
-                             Margin="0,5" Padding="10"
-                             Foreground="{StaticResource PrimaryTextBrush}"
-                             BorderBrush="{StaticResource PrimaryBrush}">
-                    <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="ImageMultiple" Margin="0,0,10,0"/>
-                        <TextBlock Text="图库 (Gallery)"/>
+                        <materialDesign:PackIcon Kind="ImageMultiple" Margin="0,0,10,0" Width="20" Height="20"/>
+                        <TextBlock Text="图库" FontSize="14"/>
                     </StackPanel>
                 </RadioButton>
 
                 <!-- 管理员面板 (仅管理员可见) -->
                 <RadioButton x:Name="AdminTab"
-                             Style="{StaticResource MaterialDesignTabRadioButton}"
-                             Margin="0,5" Padding="10"
+                             Style="{StaticResource MaterialDesignTabRadioButtonVertical}"
+                             Margin="0,5" Padding="15,12"
                              Foreground="{StaticResource PrimaryTextBrush}"
-                             BorderBrush="{StaticResource PrimaryBrush}"
+                             Background="Transparent"
                              Visibility="Collapsed"
                              Checked="AdminTab_Checked">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="ShieldAccount" Margin="0,0,10,0"/>
-                        <TextBlock Text="管理员面板 (Admin)"/>
+                        <materialDesign:PackIcon Kind="ShieldAccount" Margin="0,0,10,0" Width="20" Height="20"/>
+                        <TextBlock Text="管理员" FontSize="14"/>
                     </StackPanel>
                 </RadioButton>
 

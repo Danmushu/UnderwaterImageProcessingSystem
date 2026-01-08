@@ -21,6 +21,18 @@ public partial class AdminViewModel : ObservableObject
     {
         _adminApi = adminApi;
         _userSession = userSession;
+        
+        // 自动加载初始数据
+        _ = InitializeAsync();
+    }
+
+    /// <summary>
+    /// 初始化加载数据
+    /// </summary>
+    private async Task InitializeAsync()
+    {
+        await LoadStatisticsAsync();
+        await LoadUsersAsync();
     }
 
     #region 属性
@@ -156,41 +168,6 @@ public partial class AdminViewModel : ObservableObject
         finally
         {
             IsLoading = false;
-        }
-    }
-
-    /// <summary>
-    /// 切换用户角色
-    /// </summary>
-    [RelayCommand]
-    private async Task ToggleUserRoleAsync(dynamic user)
-    {
-        if (user == null) return;
-
-        try
-        {
-            var newRole = user.Role == "Admin" ? "User" : "Admin";
-            var payload = new { Role = newRole };
-
-            await _adminApi.UpdateUserRoleAsync(user.Id, payload);
-
-            // 更新本地状态
-            user.Role = newRole;
-            user.IsAdmin = newRole == "Admin";
-
-            // 刷新列表
-            var index = Users.IndexOf(user);
-            if (index >= 0) Users[index] = user;
-
-            StatusMessage = $"用户 {user.UserName} 的角色已更新为 {newRole}";
-        }
-        catch (ApiException ex)
-        {
-            StatusMessage = $"更新角色失败: {ex.Content ?? ex.ReasonPhrase}";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"错误: {ex.Message}";
         }
     }
 

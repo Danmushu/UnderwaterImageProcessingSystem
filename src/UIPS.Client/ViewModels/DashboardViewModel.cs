@@ -54,7 +54,9 @@ public partial class DashboardViewModel(IImageApi imageApi, UserSession userSess
     public bool CanGoPrevious => HasPreviousPage;
     public bool CanGoNext => HasNextPage;
 
-    public string PageInfo => $"第 {CurrentPage} / {TotalPages} 页 (共 {TotalCount} 张图片)";
+    public string PageInfo => TotalCount > 0 
+        ? $"第 {CurrentPage}/{TotalPages} 页 · 共 {TotalCount} 张" 
+        : "暂无图片";
 
     public bool IsAdmin => userSession.IsAdmin;
 

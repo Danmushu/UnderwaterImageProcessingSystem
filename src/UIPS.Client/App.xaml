@@ -8,6 +8,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
             <mdConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <materialDesign:BundledTheme BaseTheme="Dark" PrimaryColor="DeepPurple" SecondaryColor="Lime" />

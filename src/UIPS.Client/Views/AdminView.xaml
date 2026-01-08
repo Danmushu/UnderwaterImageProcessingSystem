@@ -127,24 +127,10 @@
                             <DataGridTextColumn Header="用户名" Binding="{Binding UserName}" Width="*"/>
                             <DataGridTextColumn Header="角色" Binding="{Binding Role}" Width="100"/>
                             
-                            <DataGridTemplateColumn Header="操作" Width="300">
+                            <DataGridTemplateColumn Header="操作" Width="200">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <!-- 切换角色按钮 -->
-                                            <Button Command="{Binding DataContext.ToggleUserRoleCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}"
-                                                    Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                    materialDesign:ButtonAssist.CornerRadius="4"
-                                                    Padding="8,4"
-                                                    Margin="0,0,5,0"
-                                                    ToolTip="切换用户角色">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <materialDesign:PackIcon Kind="AccountSwitch" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,3,0"/>
-                                                    <TextBlock Text="{Binding Role, StringFormat='切换为 {0}'}" VerticalAlignment="Center" FontSize="11"/>
-                                                </StackPanel>
-                                            </Button>
-
                                             <!-- 重置密码按钮 -->
                                             <Button Command="{Binding DataContext.ResetPasswordCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                     CommandParameter="{Binding}"
@@ -221,42 +207,6 @@
                 </Grid>
             </TabItem>
 
-            <!-- 图片管理标签页 -->
-            <TabItem Header="图片管理">
-                <TabItem.HeaderTemplate>
-                    <DataTemplate>
-                        <StackPanel>
-                            <materialDesign:PackIcon Kind="Image" Width="24" Height="24" HorizontalAlignment="Center"/>
-                            <TextBlock Text="图片管理" HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </TabItem.HeaderTemplate>
-
-                <Grid Margin="20">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <Button Grid.Row="0"
-                            Command="{Binding LoadAllImagesCommand}"
-                            Style="{StaticResource MaterialDesignRaisedButton}"
-                            materialDesign:ButtonAssist.CornerRadius="4"
-                            Margin="0,0,0,10">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Refresh" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBlock Text="加载所有图片" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <TextBlock Grid.Row="1" 
-                               Text="图片管理功能开发中..." 
-                               HorizontalAlignment="Center" 
-                               VerticalAlignment="Center"
-                               FontSize="16"
-                               Foreground="Gray"/>
-                </Grid>
-            </TabItem>
         </TabControl>
 
         <!-- 状态栏 -->
