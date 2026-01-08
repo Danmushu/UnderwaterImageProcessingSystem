@@ -66,18 +66,18 @@ public partial class App : Application
                 // UI 注册 ViewModel & View
 
                 // 登录模块
-                services.AddSingleton<LoginViewModel>();
+                services.AddTransient<LoginViewModel>();
                 services.AddTransient<Views.LoginView>();
 
                 // 主界面模块
-                services.AddSingleton<DashboardViewModel>();
-                services.AddSingleton<Views.DashboardView>();
+                services.AddTransient<DashboardViewModel>();
+                services.AddTransient<Views.DashboardView>();
                 
                 // 管理员模块
-                services.AddSingleton<AdminViewModel>();
-                services.AddSingleton<Views.AdminView>();
+                services.AddTransient<AdminViewModel>();
+                services.AddTransient<Views.AdminView>();
                 
-                services.AddSingleton<MainWindow>();
+                services.AddTransient<MainWindow>();
 
             })
             .Build();

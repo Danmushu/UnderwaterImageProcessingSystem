@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
+using UIPS.Client.Services;
 using UIPS.Client.ViewModels;
 
 namespace UIPS.Client.Views
@@ -9,25 +10,39 @@ namespace UIPS.Client.Views
     /// </summary>
     public partial class LoginView : Window
     {
+        private readonly IServiceProvider _serviceProvider;
+
         public LoginView()
         {
             InitializeComponent();
 
-            // 从 App 服务的容器中获取 ViewModel
-            var serviceProvider = ((App)Application.Current).ServiceProvider;
-            var vm = serviceProvider.GetRequiredService<LoginViewModel>();
+            _serviceProvider = ((App)Application.Current).ServiceProvider;
 
+            // 检查是否已有保存的会话（自动登录）
+            var userSession = _serviceProvider.GetRequiredService<UserSession>();
+            if (userSession.IsAuthenticated)
+            {
+                // 已有有效会话，直接跳转到主界面
+                Loaded += (s, e) => NavigateToMainWindow();
+                return;
+            }
+
+            // 未登录，显示登录界面
+            var vm = _serviceProvider.GetRequiredService<LoginViewModel>();
             DataContext = vm;
 
-            // 订阅 ViewModel 的成功事件
-            vm.OnLoginSuccess += () =>
-            {
-                // 确保使用 serviceProvider 来获取 MainWindow
-                var mainWindow = serviceProvider.GetRequiredService<MainWindow>(); // <-- 修复行
-                mainWindow.Show();
+            // 订阅登录成功事件
+            vm.OnLoginSuccess += NavigateToMainWindow;
+        }
 
-                this.Close();
-            };
+        /// <summary>
+        /// 跳转到主界面
+        /// </summary>
+        private void NavigateToMainWindow()
+        {
+            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+            this.Close();
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)

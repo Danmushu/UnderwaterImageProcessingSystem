@@ -60,7 +60,20 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <materialDesign:PackIcon Kind="AccountCircle" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                <TextBlock x:Name="WelcomeText" Text="欢迎回来" VerticalAlignment="Center" FontSize="16"/>
+                <TextBlock x:Name="WelcomeText" Text="欢迎回来" VerticalAlignment="Center" FontSize="16" Margin="0,0,20,0"/>
+                
+                <!-- 退出登录按钮 -->
+                <Button x:Name="LogoutButton"
+                        Click="LogoutButton_Click"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        materialDesign:ButtonAssist.CornerRadius="4"
+                        Padding="10,5"
+                        ToolTip="退出登录">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Logout" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBlock Text="退出" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
 
             <ContentControl x:Name="ContentArea" 

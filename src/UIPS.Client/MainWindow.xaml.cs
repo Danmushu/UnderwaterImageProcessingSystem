@@ -88,4 +88,28 @@ public partial class MainWindow : Window
     {
         NavigateToAdmin();
     }
+
+    /// <summary>
+    /// 退出登录
+    /// </summary>
+    private void LogoutButton_Click(object sender, RoutedEventArgs e)
+    {
+        var result = MessageBox.Show(
+            "确定要退出登录吗？",
+            "退出确认",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result != MessageBoxResult.Yes) return;
+
+        // 清除会话（包括本地存储的 Token）
+        _userSession.ClearSession();
+
+        // 打开登录窗口
+        var loginView = _serviceProvider.GetRequiredService<Views.LoginView>();
+        loginView.Show();
+
+        // 关闭当前主窗口
+        this.Close();
+    }
 }
